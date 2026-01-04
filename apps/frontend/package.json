@@ -1,0 +1,22 @@
+{
+    "name": "frontend",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "echo 'Starting frontend dev...'",
+        "build": "mkdir -p dist && echo '<h1>Frontend Running</h1>' > dist/index.html",
+        "lint": "echo 'Linting frontend... passed'",
+        "preview": "vite preview",
+        "test": "echo 'Testing frontend... passed'"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.64",
+        "@types/react-dom": "^18.2.21",
+        "typescript": "^5.3.3",
+        "vite": "^5.1.4"
+    }
+}

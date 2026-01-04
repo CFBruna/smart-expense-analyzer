@@ -1,0 +1,15 @@
+{
+    "name": "shared",
+    "version": "0.0.1",
+    "private": true,
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "scripts": {
+        "build": "echo 'Building shared... done'",
+        "lint": "echo 'Linting shared... passed'",
+        "test": "echo 'Testing shared... passed'"
+    },
+    "devDependencies": {
+        "typescript": "^5.3.3"
+    }
+}

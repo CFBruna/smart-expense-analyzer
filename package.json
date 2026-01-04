@@ -1,0 +1,24 @@
+{
+    "name": "smart-expense-analyzer",
+    "version": "0.0.1",
+    "description": "AI-powered expense management system",
+    "private": true,
+    "scripts": {
+        "dev": "pnpm -r run dev",
+        "build": "pnpm -r run build",
+        "test": "pnpm -r run test",
+        "lint": "pnpm -r run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    },
+    "devDependencies": {
+        "typescript": "^5.3.3",
+        "prettier": "^3.2.5",
+        "eslint": "^8.57.0",
+        "@types/node": "^20.11.24",
+        "rimraf": "^5.0.5"
+    },
+    "engines": {
+        "node": ">=20.0.0",
+        "pnpm": ">=8.0.0"
+    }
+}

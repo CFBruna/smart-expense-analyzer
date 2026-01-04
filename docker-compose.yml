@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Databases
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - expense-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - expense-network
+
+  # Applications (Simulated for dev, usually run via pnpm dev outside docker in dev mode)
+  # But we define them here for full stack testing if needed
+  
+networks:
+  expense-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:

@@ -35,3 +35,6 @@ docker-compose.override.yml
 # Planning Artifacts
 implementation_plan.md
 task.md
+
+# IA
+.antigravity/

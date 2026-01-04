@@ -10,6 +10,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    
     strategy:
       matrix:
         node-version: [20.x]
@@ -20,7 +30,7 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v3
       with:
-        version: 8
+        version: latest
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4

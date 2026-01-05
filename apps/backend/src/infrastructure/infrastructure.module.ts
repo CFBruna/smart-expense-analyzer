@@ -4,10 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { UserSchema, UserMongooseSchema } from './database/mongodb/schemas/user.schema';
 import { ExpenseSchema, ExpenseMongooseSchema } from './database/mongodb/schemas/expense.schema';
+import { CategorySchema, CategorySchemaFactory } from './database/mongodb/schemas/category.schema';
 import { UserMongodbRepository } from './database/mongodb/repositories/user-mongodb.repository';
 import { ExpenseMongodbRepository } from './database/mongodb/repositories/expense-mongodb.repository';
+import { CategoryMongodbRepository } from './database/mongodb/repositories/category-mongodb.repository';
 import { USER_REPOSITORY } from '../domain/repositories/user.repository.interface';
 import { EXPENSE_REPOSITORY } from '../domain/repositories/expense.repository.interface';
+import { CATEGORY_REPOSITORY } from '../domain/repositories/category.repository.interface';
 import { RedisCacheService } from './cache/redis-cache.service';
 import { BcryptService } from './auth/bcrypt.service';
 import { JwtAuthService } from './auth/jwt-auth.service';
@@ -26,6 +29,7 @@ import { LangchainCategorizationService } from './ai/langchain-categorization.se
     MongooseModule.forFeature([
       { name: UserSchema.name, schema: UserMongooseSchema },
       { name: ExpenseSchema.name, schema: ExpenseMongooseSchema },
+      { name: CategorySchema.name, schema: CategorySchemaFactory },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -45,6 +49,10 @@ import { LangchainCategorizationService } from './ai/langchain-categorization.se
       provide: EXPENSE_REPOSITORY,
       useClass: ExpenseMongodbRepository,
     },
+    {
+      provide: CATEGORY_REPOSITORY,
+      useClass: CategoryMongodbRepository,
+    },
     RedisCacheService,
     BcryptService,
     JwtAuthService,
@@ -53,10 +61,11 @@ import { LangchainCategorizationService } from './ai/langchain-categorization.se
   exports: [
     USER_REPOSITORY,
     EXPENSE_REPOSITORY,
+    CATEGORY_REPOSITORY,
     RedisCacheService,
     BcryptService,
     JwtAuthService,
     LangchainCategorizationService,
   ],
 })
-export class InfrastructureModule {}
+export class InfrastructureModule { }

@@ -20,6 +20,20 @@
         "strictPropertyInitialization": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
+        "paths": {
+            "@domain/*": [
+                "apps/backend/src/domain/*"
+            ],
+            "@application/*": [
+                "apps/backend/src/application/*"
+            ],
+            "@infrastructure/*": [
+                "apps/backend/src/infrastructure/*"
+            ],
+            "@presentation/*": [
+                "apps/backend/src/presentation/*"
+            ]
+        },
         "types": [
             "node",
             "jest"

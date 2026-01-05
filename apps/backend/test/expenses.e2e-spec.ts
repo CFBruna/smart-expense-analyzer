@@ -71,7 +71,6 @@ describe('Expenses E2E Tests', () => {
           expect(res.body.category.confidence).toBeGreaterThan(0);
           expect(res.body).toHaveProperty('createdAt');
           expect(res.body).toHaveProperty('updatedAt');
-          expenseId = res.body.id;
         });
     }, 30000);
 

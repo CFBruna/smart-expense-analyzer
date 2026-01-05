@@ -34,27 +34,15 @@ export class GetAnalyticsUseCase {
   ) {}
 
   async execute(query: GetAnalyticsQuery): Promise<AnalyticsResult> {
-    const breakdown = await this.expenseRepository.getCategoryBreakdown(
+    const result = await this.expenseRepository.getAnalyticsSummary(
       query.userId,
       query.startDate,
       query.endDate,
     );
 
-    const totalSpent = breakdown.reduce(
-      (sum: number, item: { total: number }) => sum + item.total,
-      0,
-    );
-
-    const categoryBreakdown = breakdown.map(
-      (item: { category: string; total: number; count: number }) => ({
-        ...item,
-        percentage: totalSpent > 0 ? (item.total / totalSpent) * 100 : 0,
-      }),
-    );
-
     return {
-      totalSpent,
-      categoryBreakdown,
+      totalSpent: result.totalSpent,
+      categoryBreakdown: result.categoryBreakdown,
       period: {
         startDate: query.startDate,
         endDate: query.endDate,

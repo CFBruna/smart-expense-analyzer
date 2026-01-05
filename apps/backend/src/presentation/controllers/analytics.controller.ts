@@ -14,7 +14,7 @@ enum TimePeriod {
 @UseGuards(JwtAuthGuard)
 @Controller('analytics')
 export class AnalyticsController {
-  constructor(private readonly getAnalyticsUseCase: GetAnalyticsUseCase) { }
+  constructor(private readonly getAnalyticsUseCase: GetAnalyticsUseCase) {}
 
   @Get('summary')
   @ApiOperation({ summary: 'Get expense analytics summary' })

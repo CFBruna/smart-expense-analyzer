@@ -15,20 +15,28 @@ export interface PaginationOptions {
 
 export interface IExpenseRepository {
   create(expense: Expense): Promise<Expense>;
-  findById(id: string, userId: string): Promise<Expense | null>;
+  findById(id: string): Promise<Expense | null>;
   findByUserId(
     userId: string,
-    filters?: ExpenseFilters,
-    pagination?: PaginationOptions,
-  ): Promise<{ expenses: Expense[]; total: number }>;
-  update(id: string, userId: string, expense: Partial<Expense>): Promise<Expense>;
-  delete(id: string, userId: string): Promise<boolean>;
-  getMonthlyTotal(userId: string, month: number, year: number): Promise<number>;
-  getCategoryBreakdown(
+    page?: number,
+    limit?: number,
+  ): Promise<{ data: Expense[]; total: number }>;
+  update(expense: Expense): Promise<Expense>;
+  delete(id: string): Promise<void>;
+  findByUserIdAndDateRange(userId: string, startDate?: Date, endDate?: Date): Promise<Expense[]>;
+  getAnalyticsSummary(
     userId: string,
     startDate?: Date,
     endDate?: Date,
-  ): Promise<{ category: string; total: number; count: number }[]>;
+  ): Promise<{
+    totalSpent: number;
+    categoryBreakdown: {
+      category: string;
+      total: number;
+      count: number;
+      percentage: number;
+    }[];
+  }>;
 }
 
 export const EXPENSE_REPOSITORY = Symbol('IExpenseRepository');

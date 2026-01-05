@@ -18,27 +18,55 @@ export class CreateExpenseUseCase {
   constructor(
     @Inject(EXPENSE_REPOSITORY)
     private readonly expenseRepository: IExpenseRepository,
-    private readonly aiService: LangchainCategorizationService,
+    private readonly categorizationService: LangchainCategorizationService,
   ) {}
 
   async execute(command: CreateExpenseCommand): Promise<Expense> {
-    // Create expense without category first
-    let expense = new Expense(
+    // Create expense WITHOUT category first (instant save)
+    const expense = new Expense(
       null,
       command.userId,
       command.description,
       command.amount,
       command.date,
-      null, // Category will be added after AI categorization
+      null, // No category yet
+      new Date(),
+      new Date(),
     );
 
-    // Get AI categorization
-    const category = await this.aiService.categorize(command.description, command.amount);
+    // Save to database immediately
+    const savedExpense = await this.expenseRepository.create(expense);
 
-    // Update expense with category
-    expense = expense.withCategory(category);
+    // Process AI categorization in background (non-blocking)
+    this.processCategorizationAsync(savedExpense.id!, command.description, command.amount).catch(
+      (error) => {
+        // Log error but don't fail the request
+        console.error('Background categorization failed:', error);
+      },
+    );
 
-    // Persist
-    return this.expenseRepository.create(expense);
+    return savedExpense;
+  }
+
+  private async processCategorizationAsync(
+    expenseId: string,
+    description: string,
+    amount: number,
+  ): Promise<void> {
+    // Run categorization in background
+    setImmediate(async () => {
+      try {
+        const category = await this.categorizationService.categorize(description, amount);
+
+        // Update expense with category
+        const expense = await this.expenseRepository.findById(expenseId);
+        if (expense) {
+          expense.category = category;
+          await this.expenseRepository.update(expense);
+        }
+      } catch (error) {
+        console.error(`Failed to categorize expense ${expenseId}:`, error);
+      }
+    });
   }
 }

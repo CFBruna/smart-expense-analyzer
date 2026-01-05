@@ -7,7 +7,7 @@ export class Expense {
     public readonly description: string,
     public readonly amount: number,
     public readonly date: Date,
-    public readonly category: Category | null,
+    public category: Category | null, // Made mutable for async updates
     public readonly createdAt: Date = new Date(),
     public readonly updatedAt: Date = new Date(),
   ) {

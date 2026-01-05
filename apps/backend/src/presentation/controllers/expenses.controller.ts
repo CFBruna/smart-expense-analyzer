@@ -2,18 +2,29 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
   Query,
   UseGuards,
   Request,
   ParseIntPipe,
   DefaultValuePipe,
+  Param,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
 import { CreateExpenseDto } from '../../application/dtos/create-expense.dto';
 import { ExpenseResponseDto } from '../../application/dtos/expense-response.dto';
 import { CreateExpenseUseCase } from '../../application/use-cases/expenses/create-expense.use-case';
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
+import { GetExpenseByIdUseCase } from '../../application/use-cases/expenses/get-expense-by-id.use-case';
+import { DeleteExpenseUseCase } from '../../application/use-cases/expenses/delete-expense.use-case';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Expense } from '../../domain/entities/expense.entity';
 
@@ -25,11 +36,17 @@ export class ExpensesController {
   constructor(
     private readonly createExpenseUseCase: CreateExpenseUseCase,
     private readonly listExpensesUseCase: ListExpensesUseCase,
+    private readonly getExpenseByIdUseCase: GetExpenseByIdUseCase,
+    private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new expense with AI categorization' })
-  @ApiResponse({ status: 201, description: 'Expense created', type: ExpenseResponseDto })
+  @ApiOperation({ summary: 'Create a new expense (AI categorization in background)' })
+  @ApiResponse({
+    status: 201,
+    description: 'Expense created (category pending)',
+    type: ExpenseResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async create(@Request() req: any, @Body() dto: CreateExpenseDto): Promise<ExpenseResponseDto> {
     const expense = await this.createExpenseUseCase.execute({
@@ -68,6 +85,31 @@ export class ExpensesController {
     };
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get expense by ID' })
+  @ApiParam({ name: 'id', description: 'Expense ID' })
+  @ApiResponse({ status: 200, description: 'Expense found', type: ExpenseResponseDto })
+  @ApiResponse({ status: 404, description: 'Expense not found' })
+  async getById(@Request() req: any, @Param('id') id: string): Promise<ExpenseResponseDto> {
+    const expense = await this.getExpenseByIdUseCase.execute({
+      id,
+      userId: req.user.id,
+    });
+    return this.toResponseDto(expense);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete an expense' })
+  @ApiParam({ name: 'id', description: 'Expense ID' })
+  @ApiResponse({ status: 204, description: 'Expense deleted' })
+  @ApiResponse({ status: 404, description: 'Expense not found' })
+  async delete(@Request() req: any, @Param('id') id: string): Promise<void> {
+    await this.deleteExpenseUseCase.execute({
+      id,
+      userId: req.user.id,
+    });
+  }
+
   private toResponseDto(expense: Expense): ExpenseResponseDto {
     return {
       id: expense.id!,
@@ -80,7 +122,7 @@ export class ExpensesController {
             secondary: expense.category.secondary,
             tags: expense.category.tags,
             confidence: expense.category.confidence,
-            rationale: expense.category.rationale,
+            rationale: expense.category.rationale || '',
           }
         : null,
       createdAt: expense.createdAt.toISOString(),

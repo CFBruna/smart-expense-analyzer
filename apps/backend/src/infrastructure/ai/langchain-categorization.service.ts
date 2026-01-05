@@ -30,7 +30,7 @@ export class LangchainCategorizationService {
 
     this.model = new ChatGoogleGenerativeAI({
       apiKey,
-      modelName: 'gemini-pro',
+      modelName: 'gemini-2.5-flash',
       temperature: 0.2,
     });
 

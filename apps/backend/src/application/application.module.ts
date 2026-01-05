@@ -7,6 +7,10 @@ import { ListExpensesUseCase } from './use-cases/expenses/list-expenses.use-case
 import { GetAnalyticsUseCase } from './use-cases/expenses/get-analytics.use-case';
 import { GetExpenseByIdUseCase } from './use-cases/expenses/get-expense-by-id.use-case';
 import { DeleteExpenseUseCase } from './use-cases/expenses/delete-expense.use-case';
+import { CreateCategoryUseCase } from './use-cases/categories/create-category.use-case';
+import { ListCategoriesUseCase } from './use-cases/categories/list-categories.use-case';
+import { UpdateCategoryUseCase } from './use-cases/categories/update-category.use-case';
+import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.use-case';
 
 @Module({
   imports: [InfrastructureModule],
@@ -18,6 +22,10 @@ import { DeleteExpenseUseCase } from './use-cases/expenses/delete-expense.use-ca
     GetAnalyticsUseCase,
     GetExpenseByIdUseCase,
     DeleteExpenseUseCase,
+    CreateCategoryUseCase,
+    ListCategoriesUseCase,
+    UpdateCategoryUseCase,
+    DeleteCategoryUseCase,
   ],
   exports: [
     RegisterUserUseCase,
@@ -27,6 +35,10 @@ import { DeleteExpenseUseCase } from './use-cases/expenses/delete-expense.use-ca
     GetAnalyticsUseCase,
     GetExpenseByIdUseCase,
     DeleteExpenseUseCase,
+    CreateCategoryUseCase,
+    ListCategoriesUseCase,
+    UpdateCategoryUseCase,
+    DeleteCategoryUseCase,
   ],
 })
-export class ApplicationModule {}
+export class ApplicationModule { }

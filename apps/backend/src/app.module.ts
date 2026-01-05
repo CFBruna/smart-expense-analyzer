@@ -1,15 +1,21 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ApplicationModule } from './application/application.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
+import { AuthController } from './presentation/controllers/auth.controller';
+import { ExpensesController } from './presentation/controllers/expenses.controller';
+import { AnalyticsController } from './presentation/controllers/analytics.controller';
+import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/expense_analyzer'),
+    InfrastructureModule,
+    ApplicationModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AuthController, ExpensesController, AnalyticsController],
+  providers: [JwtAuthGuard],
 })
 export class AppModule {}

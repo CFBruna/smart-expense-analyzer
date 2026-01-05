@@ -1,18 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global Validation
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
-
-  // CORS
+  // Enable CORS
   app.enableCors();
 
-  // Swagger
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Smart Expense Analyzer API')
     .setDescription('The Smart Expense Analyzer API description')

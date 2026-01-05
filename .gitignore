@@ -28,6 +28,7 @@ pnpm-debug.log*
 
 # NestJS
 .nest-cli.json
+*.tsbuildinfo
 
 # Docker
 docker-compose.override.yml

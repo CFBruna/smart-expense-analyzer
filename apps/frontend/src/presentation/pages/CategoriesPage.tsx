@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
-import { Plus, Edit2, Trash2, Loader2, AlertCircle, X } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { Category } from '@domain/interfaces/category.interface';
 
 const categorySchema = z.object({
@@ -15,17 +15,51 @@ const categorySchema = z.object({
 
 type CategoryFormData = z.infer<typeof categorySchema>;
 
-const ICONS = [
-    'shopping-cart', 'utensils', 'car', 'bus', 'train', 'plane',
-    'home', 'zap', 'wifi', 'phone', 'tv', 'laptop',
-    'heart-pulse', 'pill', 'stethoscope', 'activity',
-    'film', 'music', 'gamepad-2', 'dumbbell',
-    'shirt', 'shopping-bag', 'gift', 'sparkles',
-    'briefcase', 'graduation-cap', 'book', 'pencil',
-    'coffee', 'pizza', 'beer', 'wine',
-    'wallet', 'credit-card', 'receipt', 'banknote',
-    'help-circle', 'star', 'tag', 'folder',
-];
+// Icon mapping with proper imports
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+    'shopping-cart': Icons.ShoppingCart,
+    'utensils': Icons.Utensils,
+    'car': Icons.Car,
+    'bus': Icons.Bus,
+    'train': Icons.Train,
+    'plane': Icons.Plane,
+    'home': Icons.Home,
+    'zap': Icons.Zap,
+    'wifi': Icons.Wifi,
+    'phone': Icons.Phone,
+    'tv': Icons.Tv,
+    'laptop': Icons.Laptop,
+    'heart-pulse': Icons.HeartPulse,
+    'pill': Icons.Pill,
+    'stethoscope': Icons.Stethoscope,
+    'activity': Icons.Activity,
+    'film': Icons.Film,
+    'music': Icons.Music,
+    'gamepad-2': Icons.Gamepad2,
+    'dumbbell': Icons.Dumbbell,
+    'shirt': Icons.Shirt,
+    'shopping-bag': Icons.ShoppingBag,
+    'gift': Icons.Gift,
+    'sparkles': Icons.Sparkles,
+    'briefcase': Icons.Briefcase,
+    'graduation-cap': Icons.GraduationCap,
+    'book': Icons.Book,
+    'pencil': Icons.Pencil,
+    'coffee': Icons.Coffee,
+    'pizza': Icons.Pizza,
+    'beer': Icons.Beer,
+    'wine': Icons.Wine,
+    'wallet': Icons.Wallet,
+    'credit-card': Icons.CreditCard,
+    'receipt': Icons.Receipt,
+    'banknote': Icons.Banknote,
+    'help-circle': Icons.HelpCircle,
+    'star': Icons.Star,
+    'tag': Icons.Tag,
+    'folder': Icons.Folder,
+};
+
+const ICONS = Object.keys(ICON_MAP);
 
 const DEFAULT_COLORS = [
     '#EF4444', '#F97316', '#F59E0B', '#EAB308',
@@ -104,6 +138,10 @@ export const CategoriesPage = () => {
         reset();
     };
 
+    const getIcon = (iconName: string) => {
+        return ICON_MAP[iconName] || Icons.Tag;
+    };
+
     return (
         <Layout>
             <div className="max-w-7xl mx-auto p-6">
@@ -122,7 +160,7 @@ export const CategoriesPage = () => {
                             onClick={() => setShowForm(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Icons.Plus className="w-5 h-5" />
                             Nova Categoria
                         </button>
                     )}
@@ -131,7 +169,7 @@ export const CategoriesPage = () => {
                 {/* Error */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                        <Icons.AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                         <p className="text-red-800">{error}</p>
                     </div>
                 )}
@@ -147,7 +185,7 @@ export const CategoriesPage = () => {
                                 onClick={handleCancel}
                                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5" />
+                                <Icons.X className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -210,9 +248,7 @@ export const CategoriesPage = () => {
                                 </label>
                                 <div className="grid grid-cols-8 sm:grid-cols-12 gap-2">
                                     {ICONS.map((icon) => {
-                                        const IconComponent = require('lucide-react')[icon.split('-').map((p: string, i: number) =>
-                                            i === 0 ? p.charAt(0).toUpperCase() + p.slice(1) : p.charAt(0).toUpperCase() + p.slice(1)
-                                        ).join('')] || require('lucide-react')['Tag'];
+                                        const IconComponent = getIcon(icon);
                                         return (
                                             <button
                                                 key={icon}
@@ -237,7 +273,7 @@ export const CategoriesPage = () => {
                                     disabled={creating}
                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
                                 >
-                                    {creating && <Loader2 className="w-5 h-5 animate-spin" />}
+                                    {creating && <Icons.Loader2 className="w-5 h-5 animate-spin" />}
                                     {editingCategory ? 'Atualizar' : 'Criar'} Categoria
                                 </button>
                                 <button
@@ -255,14 +291,12 @@ export const CategoriesPage = () => {
                 {/* Categories Grid */}
                 {loading && !categories.length ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                        <Icons.Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {categories.map((category) => {
-                            const IconComponent = require('lucide-react')[category.icon.split('-').map((p: string, i: number) =>
-                                i === 0 ? p.charAt(0).toUpperCase() + p.slice(1) : p.charAt(0).toUpperCase() + p.slice(1)
-                            ).join('')] || require('lucide-react')['Tag'];
+                            const IconComponent = getIcon(category.icon);
 
                             return (
                                 <div
@@ -292,7 +326,7 @@ export const CategoriesPage = () => {
                                                 onClick={() => handleEdit(category)}
                                                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                             >
-                                                <Edit2 className="w-4 h-4" />
+                                                <Icons.Edit2 className="w-4 h-4" />
                                                 Editar
                                             </button>
                                             {confirmDelete === category.id ? (
@@ -315,7 +349,7 @@ export const CategoriesPage = () => {
                                                     onClick={() => setConfirmDelete(category.id)}
                                                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Icons.Trash2 className="w-4 h-4" />
                                                     Deletar
                                                 </button>
                                             )}

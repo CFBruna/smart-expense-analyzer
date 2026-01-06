@@ -5,7 +5,7 @@ export class Category {
     public readonly tags: string[],
     public readonly confidence: number,
     public readonly rationale?: string,
-  ) { }
+  ) {}
 
   isHigh(): boolean {
     return this.confidence >= 0.7;

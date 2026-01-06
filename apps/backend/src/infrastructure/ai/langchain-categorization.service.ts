@@ -70,12 +70,8 @@ export class LangchainCategorizationService {
     this.logger.debug(`Cache miss, calling AI for: ${description}`);
 
     try {
-      const customCategories = userCategories
-        .filter((c) => !c.isDefault)
-        .map((c) => c.name);
-      const defaultCategories = userCategories
-        .filter((c) => c.isDefault)
-        .map((c) => c.name);
+      const customCategories = userCategories.filter((c) => !c.isDefault).map((c) => c.name);
+      const defaultCategories = userCategories.filter((c) => c.isDefault).map((c) => c.name);
 
       // Build history section
       let historySection = '';

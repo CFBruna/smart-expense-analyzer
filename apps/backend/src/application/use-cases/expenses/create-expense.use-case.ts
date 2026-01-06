@@ -8,7 +8,10 @@ import {
   ICategoryRepository,
   CATEGORY_REPOSITORY,
 } from '../../../domain/repositories/category.repository.interface';
-import { LangchainCategorizationService, ExpenseHistoryItem } from '../../../infrastructure/ai/langchain-categorization.service';
+import {
+  LangchainCategorizationService,
+  ExpenseHistoryItem,
+} from '../../../infrastructure/ai/langchain-categorization.service';
 
 export interface CreateExpenseCommand {
   userId: string;
@@ -25,7 +28,7 @@ export class CreateExpenseUseCase {
     @Inject(CATEGORY_REPOSITORY)
     private readonly categoryRepository: ICategoryRepository,
     private readonly categorizationService: LangchainCategorizationService,
-  ) { }
+  ) {}
 
   async execute(command: CreateExpenseCommand): Promise<Expense> {
     const expense = new Expense(

@@ -44,4 +44,4 @@ import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.us
     DeleteCategoryUseCase,
   ],
 })
-export class ApplicationModule { }
+export class ApplicationModule {}

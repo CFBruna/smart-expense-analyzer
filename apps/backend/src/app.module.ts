@@ -19,4 +19,4 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
   controllers: [AuthController, ExpensesController, AnalyticsController, CategoriesController],
   providers: [JwtAuthGuard],
 })
-export class AppModule { }
+export class AppModule {}

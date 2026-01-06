@@ -68,4 +68,4 @@ import { LangchainCategorizationService } from './ai/langchain-categorization.se
     LangchainCategorizationService,
   ],
 })
-export class InfrastructureModule { }
+export class InfrastructureModule {}

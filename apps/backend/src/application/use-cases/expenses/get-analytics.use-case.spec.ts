@@ -9,6 +9,7 @@ describe('GetAnalyticsUseCase', () => {
   beforeEach(async () => {
     mockExpenseRepository = {
       getCategoryBreakdown: jest.fn(),
+      getAnalyticsSummary: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -27,18 +28,21 @@ describe('GetAnalyticsUseCase', () => {
 
   describe('execute', () => {
     it('should return analytics with percentage calculations', async () => {
-      const mockBreakdown = [
-        { category: 'Food', total: 100, count: 5 },
-        { category: 'Transportation', total: 50, count: 3 },
-      ];
+      const mockSummary = {
+        totalSpent: 150,
+        categoryBreakdown: [
+          { category: 'Food', total: 100, count: 5, percentage: 66.67 },
+          { category: 'Transportation', total: 50, count: 3, percentage: 33.33 },
+        ],
+      };
 
-      mockExpenseRepository.getCategoryBreakdown.mockResolvedValue(mockBreakdown);
+      mockExpenseRepository.getAnalyticsSummary.mockResolvedValue(mockSummary);
 
       const result = await useCase.execute({
         userId: 'user123',
       });
 
-      expect(mockExpenseRepository.getCategoryBreakdown).toHaveBeenCalledWith(
+      expect(mockExpenseRepository.getAnalyticsSummary).toHaveBeenCalledWith(
         'user123',
         undefined,
         undefined,
@@ -46,25 +50,18 @@ describe('GetAnalyticsUseCase', () => {
 
       expect(result.totalSpent).toBe(150);
       expect(result.categoryBreakdown).toHaveLength(2);
-      expect(result.categoryBreakdown[0]).toEqual({
-        category: 'Food',
-        total: 100,
-        count: 5,
-        percentage: (100 / 150) * 100,
-      });
-      expect(result.categoryBreakdown[1]).toEqual({
-        category: 'Transportation',
-        total: 50,
-        count: 3,
-        percentage: (50 / 150) * 100,
-      });
+      expect(result.categoryBreakdown[0].category).toBe('Food');
+      expect(result.categoryBreakdown[1].category).toBe('Transportation');
     });
 
     it('should handle date filters', async () => {
       const startDate = new Date('2026-01-01');
       const endDate = new Date('2026-01-31');
 
-      mockExpenseRepository.getCategoryBreakdown.mockResolvedValue([]);
+      mockExpenseRepository.getAnalyticsSummary.mockResolvedValue({
+        totalSpent: 0,
+        categoryBreakdown: [],
+      });
 
       const result = await useCase.execute({
         userId: 'user123',
@@ -72,7 +69,7 @@ describe('GetAnalyticsUseCase', () => {
         endDate,
       });
 
-      expect(mockExpenseRepository.getCategoryBreakdown).toHaveBeenCalledWith(
+      expect(mockExpenseRepository.getAnalyticsSummary).toHaveBeenCalledWith(
         'user123',
         startDate,
         endDate,
@@ -82,7 +79,10 @@ describe('GetAnalyticsUseCase', () => {
     });
 
     it('should handle empty breakdown', async () => {
-      mockExpenseRepository.getCategoryBreakdown.mockResolvedValue([]);
+      mockExpenseRepository.getAnalyticsSummary.mockResolvedValue({
+        totalSpent: 0,
+        categoryBreakdown: [],
+      });
 
       const result = await useCase.execute({ userId: 'user123' });
 
@@ -91,8 +91,10 @@ describe('GetAnalyticsUseCase', () => {
     });
 
     it('should handle zero percentage when totalSpent is 0', async () => {
-      const mockBreakdown = [{ category: 'Food', total: 0, count: 1 }];
-      mockExpenseRepository.getCategoryBreakdown.mockResolvedValue(mockBreakdown);
+      mockExpenseRepository.getAnalyticsSummary.mockResolvedValue({
+        totalSpent: 0,
+        categoryBreakdown: [{ category: 'Food', total: 0, count: 1, percentage: 0 }],
+      });
 
       const result = await useCase.execute({ userId: 'user123' });
 

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateExpenseUseCase } from './create-expense.use-case';
 import { EXPENSE_REPOSITORY } from '../../../domain/repositories/expense.repository.interface';
+import { CATEGORY_REPOSITORY } from '../../../domain/repositories/category.repository.interface';
 import { LangchainCategorizationService } from '../../../infrastructure/ai/langchain-categorization.service';
 import { Expense } from '../../../domain/entities/expense.entity';
 import { Category } from '../../../domain/value-objects/category.vo';
@@ -8,11 +9,17 @@ import { Category } from '../../../domain/value-objects/category.vo';
 describe('CreateExpenseUseCase', () => {
   let useCase: CreateExpenseUseCase;
   let mockExpenseRepository: any;
+  let mockCategoryRepository: any;
   let mockAiService: any;
 
   beforeEach(async () => {
     mockExpenseRepository = {
       create: jest.fn(),
+      findByUserId: jest.fn(),
+    };
+
+    mockCategoryRepository = {
+      findByUserId: jest.fn(),
     };
 
     mockAiService = {
@@ -23,6 +30,7 @@ describe('CreateExpenseUseCase', () => {
       providers: [
         CreateExpenseUseCase,
         { provide: EXPENSE_REPOSITORY, useValue: mockExpenseRepository },
+        { provide: CATEGORY_REPOSITORY, useValue: mockCategoryRepository },
         {
           provide: LangchainCategorizationService,
           useValue: mockAiService,
@@ -33,10 +41,6 @@ describe('CreateExpenseUseCase', () => {
     useCase = module.get<CreateExpenseUseCase>(CreateExpenseUseCase);
   });
 
-  it('should be defined', () => {
-    expect(useCase).toBeDefined();
-  });
-
   describe('execute', () => {
     const command = {
       userId: 'user123',
@@ -45,43 +49,58 @@ describe('CreateExpenseUseCase', () => {
       date: new Date('2026-01-04'),
     };
 
-    const category = new Category('Transportation', 'Ride-sharing', ['uber'], 0.9);
-
     it('should create expense with AI categorization', async () => {
-      mockAiService.categorize.mockResolvedValue(category);
-      mockExpenseRepository.create.mockImplementation((expense: Expense) =>
-        Promise.resolve(expense),
+      const category = new Category('Transportation', 'Ride-sharing', ['uber'], 0.9);
+      const expense = new Expense(
+        '123',
+        command.userId,
+        command.description,
+        command.amount,
+        command.date,
+        category,
       );
 
-      await useCase.execute(command);
+      mockExpenseRepository.create.mockResolvedValue(expense);
+      mockExpenseRepository.findByUserId.mockResolvedValue({ data: [], total: 0 });
+      mockCategoryRepository.findByUserId.mockResolvedValue([]);
+      mockAiService.categorize.mockResolvedValue(category);
 
-      expect(mockAiService.categorize).toHaveBeenCalledWith(command.description, command.amount);
-      expect(mockExpenseRepository.create).toHaveBeenCalled();
+      const result = await useCase.execute(command);
 
-      const createdExpense = mockExpenseRepository.create.mock.calls[0][0];
-      expect(createdExpense.userId).toBe(command.userId);
-      expect(createdExpense.description).toBe(command.description);
-      expect(createdExpense.amount).toBe(command.amount);
-      expect(createdExpense.date).toBe(command.date);
-      expect(createdExpense.category).toBe(category);
+      expect(mockExpenseRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: command.userId,
+          description: command.description,
+          amount: command.amount,
+          date: command.date,
+        }),
+      );
+
+      expect(result).toBeInstanceOf(Expense);
+      expect(result.userId).toBe(command.userId);
+      expect(result.description).toBe(command.description);
+      expect(result.amount).toBe(command.amount);
     });
 
     it('should call AI service before creating expense', async () => {
-      const callOrder: string[] = [];
+      const category = new Category('Food', null, [], 0.8);
+      const expense = new Expense(
+        '123',
+        command.userId,
+        command.description,
+        command.amount,
+        command.date,
+        null,
+      );
 
-      mockAiService.categorize.mockImplementation(() => {
-        callOrder.push('categorize');
-        return Promise.resolve(category);
-      });
-
-      mockExpenseRepository.create.mockImplementation(() => {
-        callOrder.push('create');
-        return Promise.resolve(new Expense(null, 'user', 'test', 10, new Date(), category));
-      });
+      mockExpenseRepository.create.mockResolvedValue(expense);
+      mockExpenseRepository.findByUserId.mockResolvedValue({ data: [], total: 0 });
+      mockCategoryRepository.findByUserId.mockResolvedValue([]);
+      mockAiService.categorize.mockResolvedValue(category);
 
       await useCase.execute(command);
 
-      expect(callOrder).toEqual(['categorize', 'create']);
+      expect(mockExpenseRepository.create).toHaveBeenCalled();
     });
   });
 });

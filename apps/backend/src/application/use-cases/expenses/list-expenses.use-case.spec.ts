@@ -34,16 +34,17 @@ describe('ListExpensesUseCase', () => {
 
     it('should list expenses with default pagination', async () => {
       mockExpenseRepository.findByUserId.mockResolvedValue({
-        expenses: mockExpenses,
+        data: mockExpenses,
         total: 2,
       });
 
       const result = await useCase.execute({ userId: 'user123' });
 
-      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith('user123', undefined, {
-        page: 1,
-        limit: 20,
-      });
+      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith(
+        'user123',
+        undefined,
+        undefined,
+      );
 
       expect(result).toEqual({
         expenses: mockExpenses,
@@ -56,7 +57,7 @@ describe('ListExpensesUseCase', () => {
 
     it('should list expenses with custom pagination', async () => {
       mockExpenseRepository.findByUserId.mockResolvedValue({
-        expenses: mockExpenses,
+        data: mockExpenses,
         total: 100,
       });
 
@@ -65,10 +66,7 @@ describe('ListExpensesUseCase', () => {
         pagination: { page: 2, limit: 10 },
       });
 
-      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith('user123', undefined, {
-        page: 2,
-        limit: 10,
-      });
+      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith('user123', 2, 10);
 
       expect(result).toEqual({
         expenses: mockExpenses,
@@ -81,7 +79,7 @@ describe('ListExpensesUseCase', () => {
 
     it('should calculate totalPages correctly', async () => {
       mockExpenseRepository.findByUserId.mockResolvedValue({
-        expenses: [],
+        data: [],
         total: 25,
       });
 

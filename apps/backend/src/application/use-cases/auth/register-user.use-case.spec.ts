@@ -2,17 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException } from '@nestjs/common';
 import { RegisterUserUseCase } from './register-user.use-case';
 import { USER_REPOSITORY } from '../../../domain/repositories/user.repository.interface';
+import { CATEGORY_REPOSITORY } from '../../../domain/repositories/category.repository.interface';
 import { BcryptService } from '../../../infrastructure/auth/bcrypt.service';
 import { User } from '../../../domain/entities/user.entity';
 
 describe('RegisterUserUseCase', () => {
   let useCase: RegisterUserUseCase;
   let mockUserRepository: any;
+  let mockCategoryRepository: any;
   let mockBcryptService: any;
 
   beforeEach(async () => {
     mockUserRepository = {
       exists: jest.fn(),
+      create: jest.fn(),
+    };
+
+    mockCategoryRepository = {
       create: jest.fn(),
     };
 
@@ -24,6 +30,7 @@ describe('RegisterUserUseCase', () => {
       providers: [
         RegisterUserUseCase,
         { provide: USER_REPOSITORY, useValue: mockUserRepository },
+        { provide: CATEGORY_REPOSITORY, useValue: mockCategoryRepository },
         { provide: BcryptService, useValue: mockBcryptService },
       ],
     }).compile();
@@ -49,6 +56,7 @@ describe('RegisterUserUseCase', () => {
       mockUserRepository.exists.mockResolvedValue(false);
       mockBcryptService.hash.mockResolvedValue(hashedPassword);
       mockUserRepository.create.mockResolvedValue(createdUser);
+      mockCategoryRepository.create.mockResolvedValue({});
 
       const result = await useCase.execute(command);
 
@@ -76,6 +84,7 @@ describe('RegisterUserUseCase', () => {
       mockUserRepository.exists.mockResolvedValue(false);
       mockBcryptService.hash.mockResolvedValue(hashedPassword);
       mockUserRepository.create.mockImplementation((user: User) => Promise.resolve(user));
+      mockCategoryRepository.create.mockResolvedValue({});
 
       await useCase.execute(command);
 

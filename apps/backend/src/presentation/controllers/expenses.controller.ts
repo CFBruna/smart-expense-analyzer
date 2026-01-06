@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Delete,
   Body,
   Query,
@@ -20,8 +21,10 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { CreateExpenseDto } from '../../application/dtos/create-expense.dto';
+import { UpdateExpenseDto } from '../../application/dtos/update-expense.dto';
 import { ExpenseResponseDto } from '../../application/dtos/expense-response.dto';
 import { CreateExpenseUseCase } from '../../application/use-cases/expenses/create-expense.use-case';
+import { UpdateExpenseUseCase } from '../../application/use-cases/expenses/update-expense.use-case';
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
 import { GetExpenseByIdUseCase } from '../../application/use-cases/expenses/get-expense-by-id.use-case';
 import { DeleteExpenseUseCase } from '../../application/use-cases/expenses/delete-expense.use-case';
@@ -35,10 +38,11 @@ import { Expense } from '../../domain/entities/expense.entity';
 export class ExpensesController {
   constructor(
     private readonly createExpenseUseCase: CreateExpenseUseCase,
+    private readonly updateExpenseUseCase: UpdateExpenseUseCase,
     private readonly listExpensesUseCase: ListExpensesUseCase,
     private readonly getExpenseByIdUseCase: GetExpenseByIdUseCase,
     private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense (AI categorization in background)' })
@@ -98,6 +102,27 @@ export class ExpensesController {
     return this.toResponseDto(expense);
   }
 
+  @Put(':id')
+  @ApiOperation({ summary: 'Update an expense' })
+  @ApiParam({ name: 'id', description: 'Expense ID' })
+  @ApiResponse({ status: 200, description: 'Expense updated', type: ExpenseResponseDto })
+  @ApiResponse({ status: 404, description: 'Expense not found' })
+  async update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: UpdateExpenseDto,
+  ): Promise<ExpenseResponseDto> {
+    const expense = await this.updateExpenseUseCase.execute({
+      id,
+      userId: req.user.id,
+      description: dto.description,
+      amount: dto.amount,
+      date: dto.date ? new Date(dto.date) : undefined,
+      manualCategory: dto.manualCategory,
+    });
+    return this.toResponseDto(expense);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an expense' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
@@ -118,12 +143,12 @@ export class ExpensesController {
       date: expense.date.toISOString(),
       category: expense.category
         ? {
-            primary: expense.category.primary,
-            secondary: expense.category.secondary,
-            tags: expense.category.tags,
-            confidence: expense.category.confidence,
-            rationale: expense.category.rationale || '',
-          }
+          primary: expense.category.primary,
+          secondary: expense.category.secondary,
+          tags: expense.category.tags,
+          confidence: expense.category.confidence,
+          rationale: expense.category.rationale || '',
+        }
         : null,
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),

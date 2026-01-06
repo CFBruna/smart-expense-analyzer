@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsNumber, IsString, IsDateString, Min, MinLength, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsDateString,
+  Min,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateExpenseDto {

@@ -33,7 +33,7 @@ export class UpdateExpenseUseCase {
     private readonly categoryRepository: ICategoryRepository,
     private readonly categorizationService: LangchainCategorizationService,
     private readonly cacheService: RedisCacheService,
-  ) { }
+  ) {}
 
   async execute(input: UpdateExpenseInput): Promise<Expense> {
     const existingExpense = await this.expenseRepository.findById(input.id);

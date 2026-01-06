@@ -42,7 +42,7 @@ export class ExpensesController {
     private readonly listExpensesUseCase: ListExpensesUseCase,
     private readonly getExpenseByIdUseCase: GetExpenseByIdUseCase,
     private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense (AI categorization in background)' })
@@ -143,12 +143,12 @@ export class ExpensesController {
       date: expense.date.toISOString(),
       category: expense.category
         ? {
-          primary: expense.category.primary,
-          secondary: expense.category.secondary,
-          tags: expense.category.tags,
-          confidence: expense.category.confidence,
-          rationale: expense.category.rationale || '',
-        }
+            primary: expense.category.primary,
+            secondary: expense.category.secondary,
+            tags: expense.category.tags,
+            confidence: expense.category.confidence,
+            rationale: expense.category.rationale || '',
+          }
         : null,
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),

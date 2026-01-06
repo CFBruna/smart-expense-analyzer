@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AnalyticsSummary } from '@domain/interfaces/analytics.interface';
 import { analyticsService } from '../services/analytics.service';
 
-export const useAnalytics = () => {
+export const useAnalytics = (period?: 'week' | 'month' | 'year') => {
     const [data, setData] = useState<AnalyticsSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export const useAnalytics = () => {
 
     useEffect(() => {
         loadAnalytics();
-    }, []);
+    }, [period]);
 
-    return { data, loading, error, reload: loadAnalytics };
+    return { data, loading, error };
 };

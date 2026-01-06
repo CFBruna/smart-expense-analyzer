@@ -5,20 +5,20 @@ export type CategoryDocument = CategorySchema & Document;
 
 @Schema({ collection: 'categories', timestamps: true })
 export class CategorySchema {
-    @Prop({ required: true, index: true })
-    userId!: string;
+  @Prop({ required: true, index: true })
+  userId!: string;
 
-    @Prop({ required: true })
-    name!: string;
+  @Prop({ required: true })
+  name!: string;
 
-    @Prop({ required: true })
-    color!: string;
+  @Prop({ required: true })
+  color!: string;
 
-    @Prop({ required: true })
-    icon!: string;
+  @Prop({ required: true })
+  icon!: string;
 
-    @Prop({ default: false })
-    isDefault!: boolean;
+  @Prop({ default: false })
+  isDefault!: boolean;
 }
 
 export const CategorySchemaFactory = SchemaFactory.createForClass(CategorySchema);

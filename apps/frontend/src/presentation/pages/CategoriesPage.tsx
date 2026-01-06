@@ -176,9 +176,9 @@ export const CategoriesPage = () => {
 
                 {/* Form */}
                 {showForm && (
-                    <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div className="mb-8 rounded-lg shadow-sm border border-gray-200 p-6" style={{ backgroundColor: '#ffffff' }}>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                            <h2 className="text-xl font-semibold" style={{ color: '#0f172a' }}>
                                 {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                             </h2>
                             <button
@@ -192,7 +192,7 @@ export const CategoriesPage = () => {
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                             {/* Name Input */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
                                     Nome da Categoria
                                 </label>
                                 <input
@@ -208,7 +208,7 @@ export const CategoriesPage = () => {
 
                             {/* Color Picker */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
                                     Cor
                                 </label>
                                 <div className="flex items-center gap-4">
@@ -243,7 +243,7 @@ export const CategoriesPage = () => {
 
                             {/* Icon Picker */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
                                     Ícone
                                 </label>
                                 <div className="grid grid-cols-8 sm:grid-cols-12 gap-2">
@@ -301,7 +301,8 @@ export const CategoriesPage = () => {
                             return (
                                 <div
                                     key={category.id}
-                                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col gap-4"
+                                    className="rounded-lg shadow-md p-6 flex flex-col gap-4"
+                                    style={{ backgroundColor: '#ffffff' }}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div
@@ -311,7 +312,7 @@ export const CategoriesPage = () => {
                                             <IconComponent className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="font-semibold" style={{ color: '#1e293b' }}>
                                                 {category.name}
                                             </h3>
                                             {category.isDefault && (

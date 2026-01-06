@@ -46,7 +46,6 @@ describe('Auth E2E Tests', () => {
           expect(res.body.name).toBe(testUser.name);
           expect(res.body).toHaveProperty('createdAt');
           expect(res.body).not.toHaveProperty('passwordHash');
-          userId = res.body.id;
         });
     });
 
@@ -108,7 +107,6 @@ describe('Auth E2E Tests', () => {
           expect(res.body).toHaveProperty('email');
           expect(res.body.email).toBe(testUser.email);
           expect(typeof res.body.accessToken).toBe('string');
-          authToken = res.body.accessToken;
         });
     });
 

@@ -29,20 +29,18 @@ export class ListExpensesUseCase {
   ) {}
 
   async execute(query: ListExpensesQuery): Promise<ListExpensesResult> {
-    const pagination = query.pagination || { page: 1, limit: 20 };
-
     const result = await this.expenseRepository.findByUserId(
       query.userId,
-      query.filters,
-      pagination,
+      query.pagination?.page,
+      query.pagination?.limit,
     );
 
     return {
-      expenses: result.expenses,
+      expenses: result.data,
       total: result.total,
-      page: pagination.page,
-      limit: pagination.limit,
-      totalPages: Math.ceil(result.total / pagination.limit),
+      page: query.pagination?.page || 1,
+      limit: query.pagination?.limit || 20,
+      totalPages: Math.ceil(result.total / (query.pagination?.limit || 20)),
     };
   }
 }

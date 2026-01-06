@@ -2,13 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Expense } from '../../../../domain/entities/expense.entity';
-import { Category } from '../../../../domain/value-objects/category.vo';
-import {
-  IExpenseRepository,
-  ExpenseFilters,
-  PaginationOptions,
-} from '../../../../domain/repositories/expense.repository.interface';
+import { IExpenseRepository } from '../../../../domain/repositories/expense.repository.interface';
 import { ExpenseSchema, ExpenseDocument } from '../schemas/expense.schema';
+import { Category } from '../../../../domain/value-objects/category.vo';
 
 @Injectable()
 export class ExpenseMongodbRepository implements IExpenseRepository {
@@ -38,72 +34,53 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     return this.toDomain(saved);
   }
 
-  async findById(id: string, userId: string): Promise<Expense | null> {
-    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
+  async findById(id: string): Promise<Expense | null> {
+    if (!Types.ObjectId.isValid(id)) {
       return null;
     }
 
-    const expense = await this.expenseModel
-      .findOne({
-        _id: new Types.ObjectId(id),
-        userId: new Types.ObjectId(userId),
-      })
-      .exec();
+    const expense = await this.expenseModel.findOne({ _id: new Types.ObjectId(id) }).exec();
 
     return expense ? this.toDomain(expense) : null;
   }
 
   async findByUserId(
     userId: string,
-    filters?: ExpenseFilters,
-    pagination?: PaginationOptions,
-  ): Promise<{ expenses: Expense[]; total: number }> {
+    page?: number,
+    limit?: number,
+  ): Promise<{ data: Expense[]; total: number }> {
     if (!Types.ObjectId.isValid(userId)) {
-      return { expenses: [], total: 0 };
+      return { data: [], total: 0 };
     }
 
     const query: any = { userId: new Types.ObjectId(userId) };
-
-    if (filters?.startDate || filters?.endDate) {
-      query.date = {};
-      if (filters.startDate) query.date.$gte = filters.startDate;
-      if (filters.endDate) query.date.$lte = filters.endDate;
-    }
-
-    if (filters?.category) {
-      query['category.primary'] = filters.category;
-    }
-
-    if (filters?.minAmount !== undefined || filters?.maxAmount !== undefined) {
-      query.amount = {};
-      if (filters.minAmount !== undefined) query.amount.$gte = filters.minAmount;
-      if (filters.maxAmount !== undefined) query.amount.$lte = filters.maxAmount;
-    }
-
-    const page = pagination?.page || 1;
-    const limit = pagination?.limit || 20;
-    const skip = (page - 1) * limit;
+    const pageNum = page || 1;
+    const limitNum = limit || 20;
+    const skip = (pageNum - 1) * limitNum;
 
     const [expenses, total] = await Promise.all([
-      this.expenseModel.find(query).sort({ date: -1 }).skip(skip).limit(limit).exec(),
+      this.expenseModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum).exec(),
       this.expenseModel.countDocuments(query).exec(),
     ]);
 
     return {
-      expenses: expenses.map((e) => this.toDomain(e)),
+      data: expenses.map((e) => this.toDomain(e)),
       total,
     };
   }
 
-  async update(id: string, userId: string, expense: Partial<Expense>): Promise<Expense> {
-    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
+  async update(expense: Expense): Promise<Expense> {
+    if (!expense.id || !Types.ObjectId.isValid(expense.id)) {
       throw new Error('Invalid ID');
     }
 
-    const updateData: any = {};
-    if (expense.description) updateData.description = expense.description;
-    if (expense.amount) updateData.amount = expense.amount;
-    if (expense.date) updateData.date = expense.date;
+    const updateData: any = {
+      description: expense.description,
+      amount: expense.amount,
+      date: expense.date,
+      updatedAt: expense.updatedAt,
+    };
+
     if (expense.category) {
       updateData.category = {
         primary: expense.category.primary,
@@ -115,11 +92,7 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     }
 
     const updated = await this.expenseModel
-      .findOneAndUpdate(
-        { _id: new Types.ObjectId(id), userId: new Types.ObjectId(userId) },
-        { $set: updateData },
-        { new: true },
-      )
+      .findByIdAndUpdate(new Types.ObjectId(expense.id), { $set: updateData }, { new: true })
       .exec();
 
     if (!updated) {
@@ -129,19 +102,16 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     return this.toDomain(updated);
   }
 
-  async delete(id: string, userId: string): Promise<boolean> {
-    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(userId)) {
-      return false;
+  async delete(id: string): Promise<void> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new Error('Invalid ID');
     }
 
-    const result = await this.expenseModel
-      .deleteOne({
-        _id: new Types.ObjectId(id),
-        userId: new Types.ObjectId(userId),
-      })
-      .exec();
+    const result = await this.expenseModel.deleteOne({ _id: new Types.ObjectId(id) }).exec();
 
-    return result.deletedCount > 0;
+    if (result.deletedCount === 0) {
+      throw new Error('Expense not found');
+    }
   }
 
   async getMonthlyTotal(userId: string, month: number, year: number): Promise<number> {
@@ -172,13 +142,41 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     return result.length > 0 ? result[0].total : 0;
   }
 
-  async getCategoryBreakdown(
+  async findByUserIdAndDateRange(
     userId: string,
     startDate?: Date,
     endDate?: Date,
-  ): Promise<{ category: string; total: number; count: number }[]> {
+  ): Promise<Expense[]> {
     if (!Types.ObjectId.isValid(userId)) {
       return [];
+    }
+
+    const query: any = { userId: new Types.ObjectId(userId) };
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = startDate;
+      if (endDate) query.date.$lte = endDate;
+    }
+
+    const expenses = await this.expenseModel.find(query).sort({ date: -1 }).exec();
+    return expenses.map((e) => this.toDomain(e));
+  }
+
+  async getAnalyticsSummary(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
+    totalSpent: number;
+    categoryBreakdown: {
+      category: string;
+      total: number;
+      count: number;
+      percentage: number;
+    }[];
+  }> {
+    if (!Types.ObjectId.isValid(userId)) {
+      return { totalSpent: 0, categoryBreakdown: [] };
     }
 
     const match: any = { userId: new Types.ObjectId(userId) };
@@ -188,29 +186,40 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       if (endDate) match.date.$lte = endDate;
     }
 
-    const result = await this.expenseModel
-      .aggregate([
-        { $match: match },
-        {
-          $group: {
-            _id: '$category.primary',
-            total: { $sum: '$amount' },
-            count: { $sum: 1 },
+    const [totalResult, breakdownResult] = await Promise.all([
+      this.expenseModel
+        .aggregate([{ $match: match }, { $group: { _id: null, total: { $sum: '$amount' } } }])
+        .exec(),
+      this.expenseModel
+        .aggregate([
+          { $match: match },
+          {
+            $group: {
+              _id: '$category.primary',
+              total: { $sum: '$amount' },
+              count: { $sum: 1 },
+            },
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            category: '$_id',
-            total: 1,
-            count: 1,
+          {
+            $project: {
+              _id: 0,
+              category: '$_id',
+              total: 1,
+              count: 1,
+            },
           },
-        },
-        { $sort: { total: -1 } },
-      ])
-      .exec();
+          { $sort: { total: -1 } },
+        ])
+        .exec(),
+    ]);
 
-    return result;
+    const totalSpent = totalResult.length > 0 ? totalResult[0].total : 0;
+    const categoryBreakdown = breakdownResult.map((item) => ({
+      ...item,
+      percentage: totalSpent > 0 ? (item.total / totalSpent) * 100 : 0,
+    }));
+
+    return { totalSpent, categoryBreakdown };
   }
 
   private toDomain(expenseDoc: ExpenseDocument): Expense {

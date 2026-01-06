@@ -5,6 +5,7 @@ import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { ExpensesController } from './presentation/controllers/expenses.controller';
 import { AnalyticsController } from './presentation/controllers/analytics.controller';
+import { CategoriesController } from './presentation/controllers/categories.controller';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
@@ -15,7 +16,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     InfrastructureModule,
     ApplicationModule,
   ],
-  controllers: [AuthController, ExpensesController, AnalyticsController],
+  controllers: [AuthController, ExpensesController, AnalyticsController, CategoriesController],
   providers: [JwtAuthGuard],
 })
 export class AppModule {}

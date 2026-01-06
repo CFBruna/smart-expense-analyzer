@@ -1,0 +1,70 @@
+export interface Translations {
+  // ... existing fields ...
+  
+  // Actions (new)
+  actions: {
+    edit: string;
+    delete: string;
+    save: string;
+    cancel: string;
+    confirm: string;
+  };
+  
+  // Modals (new)
+  modals: {
+    deleteTitle: string;
+    deleteMessage: string;
+    editTitle: string;
+  };
+}
+
+// Update PT translation
+pt: {
+  // ... existing fields ...
+  actions: {
+    edit: 'Editar',
+    delete: 'Excluir',
+    save: 'Salvar',
+    cancel: 'Cancelar',
+    confirm: 'Confirmar',
+  },
+  modals: {
+    deleteTitle: 'Confirmar Exclusão',
+    deleteMessage: 'Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita.',
+    editTitle: 'Editar Despesa',
+  },
+}
+
+// Update EN translation
+en: {
+  // ... existing fields ...
+  actions: {
+    edit: 'Edit',
+    delete: 'Delete',
+    save: 'Save',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+  },
+  modals: {
+    deleteTitle: 'Confirm Deletion',
+    deleteMessage: 'Are you sure you want to delete this expense? This action cannot be undone.',
+    editTitle: 'Edit Expense',
+  },
+}
+
+// Update ES translation
+es: {
+  // ... existing fields ...
+  actions: {
+    edit: 'Editar',
+    delete: 'Eliminar',
+    save: 'Guardar',
+    cancel: 'Cancelar',
+    confirm: 'Confirmar',
+  },
+  modals: {
+    deleteTitle: 'Confirmar Eliminación',
+    deleteMessage: '¿Estás seguro de que deseas eliminar este gasto? Esta acción no se puede deshacer.',
+    editTitle: 'Editar Gasto',
+  },
+}

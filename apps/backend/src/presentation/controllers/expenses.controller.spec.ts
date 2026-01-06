@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExpensesController } from './expenses.controller';
 import { CreateExpenseUseCase } from '../../application/use-cases/expenses/create-expense.use-case';
+import { UpdateExpenseUseCase } from '../../application/use-cases/expenses/update-expense.use-case';
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
+import { GetExpenseByIdUseCase } from '../../application/use-cases/expenses/get-expense-by-id.use-case';
+import { DeleteExpenseUseCase } from '../../application/use-cases/expenses/delete-expense.use-case';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Category } from '../../domain/value-objects/category.vo';
 import { JwtAuthService } from '../../infrastructure/auth/jwt-auth.service';
@@ -9,10 +12,17 @@ import { JwtAuthService } from '../../infrastructure/auth/jwt-auth.service';
 describe('ExpensesController', () => {
   let controller: ExpensesController;
   let mockCreateUseCase: any;
+  let mockUpdateUseCase: any;
   let mockListUseCase: any;
+  let mockGetByIdUseCase: any;
+  let mockDeleteUseCase: any;
 
   beforeEach(async () => {
     mockCreateUseCase = {
+      execute: jest.fn(),
+    };
+
+    mockUpdateUseCase = {
       execute: jest.fn(),
     };
 
@@ -20,11 +30,22 @@ describe('ExpensesController', () => {
       execute: jest.fn(),
     };
 
+    mockGetByIdUseCase = {
+      execute: jest.fn(),
+    };
+
+    mockDeleteUseCase = {
+      execute: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ExpensesController],
       providers: [
         { provide: CreateExpenseUseCase, useValue: mockCreateUseCase },
+        { provide: UpdateExpenseUseCase, useValue: mockUpdateUseCase },
         { provide: ListExpensesUseCase, useValue: mockListUseCase },
+        { provide: GetExpenseByIdUseCase, useValue: mockGetByIdUseCase },
+        { provide: DeleteExpenseUseCase, useValue: mockDeleteUseCase },
         { provide: JwtAuthService, useValue: { verifyToken: jest.fn() } },
       ],
     }).compile();

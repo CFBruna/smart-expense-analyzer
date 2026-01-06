@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Expense, CreateExpenseDto, ExpenseListResponse } from '@domain/interfaces/expense.interface';
+import { Expense, CreateExpenseDto } from '@domain/interfaces/expense.interface';
 import { expenseService } from '../services/expense.service';
 
 export const useExpenses = () => {
@@ -9,66 +9,45 @@ export const useExpenses = () => {
     const [error, setError] = useState<string | null>(null);
 
     const loadExpenses = useCallback(async (page = 1, limit = 20) => {
-        setLoading(true);
-        setError(null);
         try {
-            const result = await expenseService.listExpenses(page, limit);
-            setExpenses(result.data);
-            setMeta(result.meta);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to load expenses';
-            setError(message);
+            setLoading(true);
+            setError(null);
+            const response = await expenseService.listExpenses(page, limit);
+            setExpenses(response.data);
+            setMeta(response.meta);
+        } catch (err) {
+            setError('Failed to load expenses');
+            console.error(err);
         } finally {
             setLoading(false);
         }
     }, []);
 
-    const createExpense = async (data: CreateExpenseDto): Promise<Expense> => {
-        setError(null);
-        try {
-            const newExpense = await expenseService.createExpense(data);
-            await loadExpenses(meta.page);
-            return newExpense;
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to create expense';
-            setError(message);
-            throw err;
-        }
-    };
+    const createExpense = useCallback(async (data: CreateExpenseDto) => {
+        const newExpense = await expenseService.createExpense(data);
+        await loadExpenses(meta.page, meta.limit);
+        return newExpense;
+    }, [loadExpenses, meta.page, meta.limit]);
 
-    const updateExpense = async (
-        id: string,
-        data: Partial<CreateExpenseDto>,
-    ): Promise<Expense> => {
-        setLoading(true);
-        setError(null);
-        try {
-            const updatedExpense = await expenseService.updateExpense(id, data);
-            await loadExpenses(meta.page);
-            return updatedExpense;
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to update expense';
-            setError(message);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
+    const updateExpense = useCallback(async (id: string, data: Partial<CreateExpenseDto> & {
+        manualCategory?: {
+            primary: string;
+            secondary?: string | null;
+        };
+    }) => {
+        await expenseService.updateExpense(id, data);
+        await loadExpenses(meta.page, meta.limit);
+    }, [loadExpenses, meta.page, meta.limit]);
 
-    const deleteExpense = async (id: string): Promise<void> => {
-        setLoading(true);
-        setError(null);
-        try {
-            await expenseService.deleteExpense(id);
-            await loadExpenses(meta.page);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Failed to delete expense';
-            setError(message);
-            throw err;
-        } finally {
-            setLoading(false);
+    const deleteExpense = useCallback(async (id: string) => {
+        await expenseService.deleteExpense(id);
+        const remainingOnPage = expenses.length - 1;
+        if (remainingOnPage === 0 && meta.page > 1) {
+            await loadExpenses(meta.page - 1, meta.limit);
+        } else {
+            await loadExpenses(meta.page, meta.limit);
         }
-    };
+    }, [loadExpenses, meta.page, meta.limit, expenses.length]);
 
     useEffect(() => {
         loadExpenses();

@@ -37,7 +37,7 @@ export class RegisterUserUseCase {
     @Inject(CATEGORY_REPOSITORY)
     private readonly categoryRepository: ICategoryRepository,
     private readonly bcryptService: BcryptService,
-  ) { }
+  ) {}
 
   async execute(command: RegisterUserCommand): Promise<User> {
     const exists = await this.userRepository.exists(command.email);
@@ -47,12 +47,7 @@ export class RegisterUserUseCase {
 
     const passwordHash = await this.bcryptService.hash(command.password);
 
-    const user = new User(
-      null,
-      command.email,
-      passwordHash,
-      command.name,
-    );
+    const user = new User(null, command.email, passwordHash, command.name);
 
     const createdUser = await this.userRepository.create(user);
 

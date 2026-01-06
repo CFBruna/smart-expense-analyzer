@@ -3,6 +3,7 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { RegisterUserUseCase } from './use-cases/auth/register-user.use-case';
 import { AuthenticateUserUseCase } from './use-cases/auth/authenticate-user.use-case';
 import { CreateExpenseUseCase } from './use-cases/expenses/create-expense.use-case';
+import { UpdateExpenseUseCase } from './use-cases/expenses/update-expense.use-case';
 import { ListExpensesUseCase } from './use-cases/expenses/list-expenses.use-case';
 import { GetAnalyticsUseCase } from './use-cases/expenses/get-analytics.use-case';
 import { GetExpenseByIdUseCase } from './use-cases/expenses/get-expense-by-id.use-case';
@@ -18,6 +19,7 @@ import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.us
     RegisterUserUseCase,
     AuthenticateUserUseCase,
     CreateExpenseUseCase,
+    UpdateExpenseUseCase,
     ListExpensesUseCase,
     GetAnalyticsUseCase,
     GetExpenseByIdUseCase,
@@ -31,6 +33,7 @@ import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.us
     RegisterUserUseCase,
     AuthenticateUserUseCase,
     CreateExpenseUseCase,
+    UpdateExpenseUseCase,
     ListExpensesUseCase,
     GetAnalyticsUseCase,
     GetExpenseByIdUseCase,

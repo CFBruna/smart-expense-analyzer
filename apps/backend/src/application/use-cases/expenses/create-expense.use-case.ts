@@ -4,7 +4,11 @@ import {
   IExpenseRepository,
   EXPENSE_REPOSITORY,
 } from '../../../domain/repositories/expense.repository.interface';
-import { LangchainCategorizationService } from '../../../infrastructure/ai/langchain-categorization.service';
+import {
+  ICategoryRepository,
+  CATEGORY_REPOSITORY,
+} from '../../../domain/repositories/category.repository.interface';
+import { LangchainCategorizationService, ExpenseHistoryItem } from '../../../infrastructure/ai/langchain-categorization.service';
 
 export interface CreateExpenseCommand {
   userId: string;
@@ -18,47 +22,69 @@ export class CreateExpenseUseCase {
   constructor(
     @Inject(EXPENSE_REPOSITORY)
     private readonly expenseRepository: IExpenseRepository,
+    @Inject(CATEGORY_REPOSITORY)
+    private readonly categoryRepository: ICategoryRepository,
     private readonly categorizationService: LangchainCategorizationService,
-  ) {}
+  ) { }
 
   async execute(command: CreateExpenseCommand): Promise<Expense> {
-    // Create expense WITHOUT category first (instant save)
     const expense = new Expense(
       null,
       command.userId,
       command.description,
       command.amount,
       command.date,
-      null, // No category yet
+      null,
       new Date(),
       new Date(),
     );
 
-    // Save to database immediately
     const savedExpense = await this.expenseRepository.create(expense);
 
-    // Process AI categorization in background (non-blocking)
-    this.processCategorizationAsync(savedExpense.id!, command.description, command.amount).catch(
-      (error) => {
-        // Log error but don't fail the request
-        console.error('Background categorization failed:', error);
-      },
-    );
+    this.processCategorizationAsync(
+      savedExpense.id!,
+      command.userId,
+      command.description,
+      command.amount,
+    ).catch((error) => {
+      console.error('Background categorization failed:', error);
+    });
 
     return savedExpense;
   }
 
   private async processCategorizationAsync(
     expenseId: string,
+    userId: string,
     description: string,
     amount: number,
   ): Promise<void> {
-    // Run categorization in background
     setImmediate(async () => {
       try {
-        const category = await this.categorizationService.categorize(description, amount);
+        const userCategories = await this.categoryRepository.findByUserId(userId);
+        const recentExpenses = await this.expenseRepository.findByUserId(userId, 1, 15);
 
-        // Update expense with category
+        const expenseHistory: ExpenseHistoryItem[] = recentExpenses.data
+          .filter((e: Expense) => e.category)
+          .map((e: Expense) => ({
+            description: e.description,
+            category: e.category!.primary,
+            amount: e.amount,
+            date: e.date,
+          }));
+
+        const categoriesForAI = userCategories.map((cat) => ({
+          name: cat.name,
+          isDefault: cat.isDefault,
+        }));
+
+        const category = await this.categorizationService.categorize(
+          description,
+          amount,
+          categoriesForAI,
+          expenseHistory,
+        );
+
         const expense = await this.expenseRepository.findById(expenseId);
         if (expense) {
           expense.category = category;

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useExpenses } from '@application/hooks/useExpenses';
+import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
 import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import { useCurrency } from '@application/contexts/CurrencyContext';
@@ -12,15 +13,17 @@ import { translateCategory } from '@application/utils/translate-category';
 import { Expense } from '@domain/interfaces/expense.interface';
 
 const expenseSchema = z.object({
-    description: z.string().min(3),
+    description: z.string().min(2),
     amount: z.number().min(0.01),
     date: z.string(),
+    categoryName: z.string().optional(),
 });
 
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 export const DashboardPage = () => {
     const { expenses, loading, error, meta, loadExpenses, createExpense, updateExpense, deleteExpense } = useExpenses();
+    const { categories } = useCategories();
     const { currency } = useCurrency();
     const { language, t } = useLanguage();
     const [showForm, setShowForm] = useState(false);
@@ -44,13 +47,16 @@ export const DashboardPage = () => {
 
     const onSubmit = async (data: ExpenseFormData) => {
         if (editingId) {
-            // Update mode
             setCreating(true);
             try {
                 await updateExpense(editingId, {
                     description: data.description,
                     amount: data.amount,
                     date: data.date,
+                    manualCategory: data.categoryName ? {
+                        primary: data.categoryName,
+                        secondary: null,
+                    } : undefined,
                 });
                 setEditingId(null);
                 setShowForm(false);
@@ -61,7 +67,6 @@ export const DashboardPage = () => {
                 setCreating(false);
             }
         } else {
-            // Create mode
             setCreating(true);
             try {
                 await createExpense({
@@ -84,6 +89,7 @@ export const DashboardPage = () => {
         setValue('description', expense.description);
         setValue('amount', expense.amount);
         setValue('date', expense.date.split('T')[0]);
+        setValue('categoryName', expense.category?.primary || '');
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -168,6 +174,25 @@ export const DashboardPage = () => {
                                 <p className="mt-1 text-sm text-red-600">{t.dashboard.descriptionError}</p>
                             )}
                         </div>
+
+                        {editingId && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Categoria (opcional)
+                                </label>
+                                <select
+                                    {...register('categoryName')}
+                                    className="input-field"
+                                >
+                                    <option value="">Manter categoria da IA</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.name}>
+                                            {cat.name} {cat.isDefault ? '(padrão)' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -261,31 +286,48 @@ export const DashboardPage = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold text-gray-900">{expense.description}</h4>
+                                <div>
+                                    {/* Title and Actions Row */}
+                                    <div className="flex items-center justify-between gap-3 mb-2">
+                                        <h4 className="font-semibold text-gray-900 text-base flex-1">{expense.description}</h4>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleEdit(expense)}
+                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                title={t.actions.edit}
+                                            >
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteClick(expense.id)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title={t.actions.delete}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Info Section */}
+                                    <div>
                                         <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
                                             <div className="flex items-center gap-1">
                                                 <Calendar size={14} />
-                                                {new Date(expense.date).toLocaleDateString()}
+                                                {new Date(expense.date).toLocaleDateString('pt-BR')} {new Date(expense.date).toLocaleTimeString('pt-BR', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
                                             </div>
-                                            <div className="flex items-center gap-1">
+                                            <div className="font-semibold text-gray-900 ml-auto">
                                                 {formatCurrency(expense.amount, currency)}
                                             </div>
-                                            <div className="text-xs text-gray-500">
-                                                {new Date(expense.createdAt).toLocaleString()}
-                                            </div>
+
                                         </div>
                                         {expense.category && (
                                             <div className="mt-2 flex items-center gap-2">
                                                 <Tag size={14} className="text-primary-600" />
                                                 <span className="text-sm font-medium text-primary-600">
                                                     {translateCategory(expense.category.primary, language)}
-                                                    {expense.category.secondary &&
-                                                        ` • ${translateCategory(expense.category.secondary, language)}`}
-                                                </span>
-                                                <span className="text-xs text-gray-500">
-                                                    ({(expense.category.confidence * 100).toFixed(0)}% {t.dashboard.confidence})
                                                 </span>
                                             </div>
                                         )}
@@ -297,22 +339,6 @@ export const DashboardPage = () => {
                                                 </span>
                                             </div>
                                         )}
-                                    </div>
-                                    <div className="flex items-center gap-2 ml-4">
-                                        <button
-                                            onClick={() => handleEdit(expense)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                            title={t.actions.edit}
-                                        >
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteClick(expense.id)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                            title={t.actions.delete}
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
                                     </div>
                                 </div>
                             )}

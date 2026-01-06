@@ -29,10 +29,10 @@ export const LanguageSelector = () => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-xs sm:text-sm font-medium"
                 title="Idioma / Language / Idioma"
             >
-                <span>{currentLanguage.flag}</span>
+                <span className="text-base sm:text-lg">{currentLanguage.flag}</span>
                 <span className="hidden sm:inline">{currentLanguage.code.toUpperCase()}</span>
             </button>
 

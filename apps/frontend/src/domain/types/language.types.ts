@@ -45,6 +45,7 @@ export interface Translations {
         tagline: string;
         dashboard: string;
         analytics: string;
+        categories: string;
         logout: string;
     };
 
@@ -137,6 +138,7 @@ export const translations: Record<LanguageCode, Translations> = {
             tagline: 'Gestão de despesas com IA',
             dashboard: 'Painel',
             analytics: 'Análises',
+            categories: 'Categorias',
             logout: 'Sair',
         },
         dashboard: {
@@ -215,6 +217,7 @@ export const translations: Record<LanguageCode, Translations> = {
             tagline: 'AI-powered expense management',
             dashboard: 'Dashboard',
             analytics: 'Analytics',
+            categories: 'Categories',
             logout: 'Logout',
         },
         dashboard: {
@@ -293,6 +296,7 @@ export const translations: Record<LanguageCode, Translations> = {
             tagline: 'Gestión de gastos con IA',
             dashboard: 'Panel',
             analytics: 'Análisis',
+            categories: 'Categorías',
             logout: 'Salir',
         },
         dashboard: {

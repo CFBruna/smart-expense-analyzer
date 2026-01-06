@@ -148,10 +148,10 @@ export const CategoriesPage = () => {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="text-3xl font-bold" style={{ color: '#0f172a' }}>
                             Minhas Categorias
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="mt-1" style={{ color: '#334155' }}>
                             Gerencie suas categorias personalizadas
                         </p>
                     </div>

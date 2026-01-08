@@ -47,13 +47,13 @@ export class LangchainCategorizationService {
   }
 
   async categorize(
+    userId: string,
     description: string,
     amount: number,
     userCategories: UserCategory[],
     expenseHistory: ExpenseHistoryItem[] = [],
   ): Promise<Category> {
-    // Check cache first
-    const cacheKey = this.cacheService.getCategoryKey(description);
+    const cacheKey = this.cacheService.getCategoryKey(userId, description);
     const cached = await this.cacheService.get<Category>(cacheKey);
 
     if (cached) {
@@ -73,11 +73,10 @@ export class LangchainCategorizationService {
       const customCategories = userCategories.filter((c) => !c.isDefault).map((c) => c.name);
       const defaultCategories = userCategories.filter((c) => c.isDefault).map((c) => c.name);
 
-      // Build history section
       let historySection = '';
       if (expenseHistory.length > 0) {
         const historyItems = expenseHistory
-          .slice(0, 15) // Limit to last 15 expenses
+          .slice(0, 15)
           .map((h) => `- "${h.description}" → ${h.category} (${h.amount.toFixed(2)})`)
           .join('\n');
         historySection = `

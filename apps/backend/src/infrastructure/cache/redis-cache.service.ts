@@ -33,11 +33,10 @@ export class RedisCacheService implements OnModuleDestroy {
     return result === 1;
   }
 
-  getCategoryKey(description: string): string {
-    const hash = createHash('sha256')
-      .update(description.toLowerCase().trim())
-      .digest('hex')
-      .substring(0, 16);
+  getCategoryKey(userId: string, description: string): string {
+    // Include userId to isolate cache per user
+    const combined = `${userId}:${description.toLowerCase().trim()}`;
+    const hash = createHash('sha256').update(combined).digest('hex').substring(0, 16);
     return `ai:category:${hash}`;
   }
 

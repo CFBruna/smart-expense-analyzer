@@ -5,12 +5,40 @@ import { z } from 'zod';
 import { useExpenses } from '@application/hooks/useExpenses';
 import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
-import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2, Filter } from 'lucide-react';
 import { useCurrency } from '@application/contexts/CurrencyContext';
 import { formatCurrency } from '@domain/types/currency.types';
 import { useLanguage } from '@application/contexts/LanguageContext';
 import { translateCategory } from '@application/utils/translate-category';
 import { Expense } from '@domain/interfaces/expense.interface';
+
+type FilterPreset = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'allTime' | 'custom';
+
+const getDateRange = (preset: FilterPreset): { startDate?: string; endDate?: string } => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    switch (preset) {
+        case 'today':
+            return { startDate: today.toISOString(), endDate: new Date(today.getTime() + 86400000 - 1).toISOString() };
+        case 'thisWeek': {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            return { startDate: weekStart.toISOString(), endDate: now.toISOString() };
+        }
+        case 'thisMonth': {
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            return { startDate: monthStart.toISOString(), endDate: now.toISOString() };
+        }
+        case 'thisYear': {
+            const yearStart = new Date(now.getFullYear(), 0, 1);
+            return { startDate: yearStart.toISOString(), endDate: now.toISOString() };
+        }
+        case 'allTime':
+        default:
+            return {};
+    }
+};
 
 const expenseSchema = z.object({
     description: z.string().min(2),
@@ -22,7 +50,7 @@ const expenseSchema = z.object({
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 export const DashboardPage = () => {
-    const { expenses, loading, error, meta, loadExpenses, createExpense, updateExpense, deleteExpense } = useExpenses();
+    const { expenses, loading, error, meta, loadExpenses, createExpense, updateExpense, deleteExpense, applyDateFilters } = useExpenses();
     const { categories } = useCategories();
     const { currency } = useCurrency();
     const { language, t } = useLanguage();
@@ -31,6 +59,11 @@ export const DashboardPage = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+    const [filterPreset, setFilterPreset] = useState<FilterPreset>('allTime');
+    const [showCustomRange, setShowCustomRange] = useState(false);
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
+
 
     const {
         register,
@@ -120,6 +153,26 @@ export const DashboardPage = () => {
         }
     };
 
+    const handleFilterChange = (preset: FilterPreset) => {
+        setFilterPreset(preset);
+        if (preset === 'custom') {
+            setShowCustomRange(true);
+        } else {
+            setShowCustomRange(false);
+            const range = getDateRange(preset);
+            applyDateFilters(Object.keys(range).length > 0 ? range : undefined);
+        }
+    };
+
+    const handleCustomRangeApply = () => {
+        if (customStartDate && customEndDate) {
+            applyDateFilters({
+                startDate: new Date(customStartDate).toISOString(),
+                endDate: new Date(customEndDate + 'T23:59:59').toISOString(),
+            });
+        }
+    };
+
     // Poll for pending categorizations (every 5s)
     useEffect(() => {
         const hasPending = expenses.some((e) => !e.category);
@@ -140,6 +193,71 @@ export const DashboardPage = () => {
                     <span>{error}</span>
                 </div>
             )}
+
+            {/* Date Filters */}
+            <div className="mb-6 card-filter">
+                <div className="flex items-center gap-2 mb-4">
+                    <Filter size={20} className="text-primary-600" />
+                    <span className="font-medium text-gray-700">{t.dashboard.filters.customRange}</span>
+                </div>
+                <div className="filter-scroll-container mb-4">
+                    {(['today', 'thisWeek', 'thisMonth', 'thisYear', 'allTime'] as const).map((preset) => (
+                        <button
+                            key={preset}
+                            onClick={() => handleFilterChange(preset)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterPreset === preset
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                        >
+                            {t.dashboard.filters[preset]}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => handleFilterChange('custom')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterPreset === 'custom'
+                            ? 'bg-primary-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                    >
+                        {t.dashboard.filters.customRange}
+                    </button>
+                </div>
+
+                {showCustomRange && (
+                    <div className="flex flex-wrap items-end gap-4 animate-slide-up">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {t.dashboard.filters.from}
+                            </label>
+                            <input
+                                type="date"
+                                value={customStartDate}
+                                onChange={(e) => setCustomStartDate(e.target.value)}
+                                className="input-field"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                {t.dashboard.filters.to}
+                            </label>
+                            <input
+                                type="date"
+                                value={customEndDate}
+                                onChange={(e) => setCustomEndDate(e.target.value)}
+                                className="input-field"
+                            />
+                        </div>
+                        <button
+                            onClick={handleCustomRangeApply}
+                            disabled={!customStartDate || !customEndDate}
+                            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {t.dashboard.filters.apply}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             <div className="mb-6">
                 <button

@@ -15,6 +15,7 @@ import { RedisCacheService } from './cache/redis-cache.service';
 import { BcryptService } from './auth/bcrypt.service';
 import { JwtAuthService } from './auth/jwt-auth.service';
 import { LangchainCategorizationService } from './ai/langchain-categorization.service';
+import { SeedService } from './database/seed.service';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { LangchainCategorizationService } from './ai/langchain-categorization.se
     BcryptService,
     JwtAuthService,
     LangchainCategorizationService,
+    SeedService,
   ],
   exports: [
     USER_REPOSITORY,

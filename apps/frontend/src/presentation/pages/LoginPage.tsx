@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '@application/hooks/useAuth';
 import { LogIn, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@application/contexts/LanguageContext';
+import { LanguageSelector } from '@presentation/components/common/LanguageSelector';
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -33,14 +34,18 @@ export const LoginPage = () => {
 
     const fillDemoCredentials = () => {
         setValue('email', 'demo@expense.com');
-        setValue('password', 'Demo1234');
+        setValue('password', 'ExpenseDemo2026!');
         setShowDemo(true);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
-            <div className="card max-w-md w-full animate-slide-up">
-                <div className="text-center mb-8">
+            <div className="card max-w-md w-full animate-slide-up relative">
+                {/* Language Selector */}
+                <div className="absolute top-2 right-2 z-10">
+                    <LanguageSelector />
+                </div>
+                <div className="text-center mb-8 pr-10">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Smart Expense Analyzer</h1>
                     <p className="text-gray-600">{t.nav.tagline}</p>
                 </div>
@@ -98,7 +103,7 @@ export const LoginPage = () => {
                         {showDemo ? t.auth.demoLoaded : t.auth.useDemoAccount}
                     </button>
                     <p className="mt-2 text-xs text-gray-500">
-                        Email: demo@expense.com | Password: demo123
+                        Email: demo@expense.com | Password: ExpenseDemo2026!
                     </p>
                 </div>
             </div>

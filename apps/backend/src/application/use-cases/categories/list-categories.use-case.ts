@@ -17,6 +17,11 @@ export class ListCategoriesUseCase {
   ) {}
 
   async execute(query: ListCategoriesQuery): Promise<Category[]> {
-    return await this.categoryRepository.findByUserId(query.userId);
+    const [defaultCategories, userCategories] = await Promise.all([
+      this.categoryRepository.findDefaults(),
+      this.categoryRepository.findByUserId(query.userId),
+    ]);
+
+    return [...defaultCategories, ...userCategories];
   }
 }

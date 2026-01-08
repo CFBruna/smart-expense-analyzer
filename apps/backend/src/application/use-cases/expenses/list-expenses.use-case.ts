@@ -29,6 +29,29 @@ export class ListExpensesUseCase {
   ) {}
 
   async execute(query: ListExpensesQuery): Promise<ListExpensesResult> {
+    const hasDateFilters = query.filters?.startDate || query.filters?.endDate;
+
+    if (hasDateFilters) {
+      const expenses = await this.expenseRepository.findByUserIdAndDateRange(
+        query.userId,
+        query.filters?.startDate,
+        query.filters?.endDate,
+      );
+
+      const page = query.pagination?.page || 1;
+      const limit = query.pagination?.limit || 20;
+      const start = (page - 1) * limit;
+      const paginatedExpenses = expenses.slice(start, start + limit);
+
+      return {
+        expenses: paginatedExpenses,
+        total: expenses.length,
+        page,
+        limit,
+        totalPages: Math.ceil(expenses.length / limit),
+      };
+    }
+
     const result = await this.expenseRepository.findByUserId(
       query.userId,
       query.pagination?.page,

@@ -122,6 +122,7 @@ describe('ExpensesController', () => {
       expect(mockListUseCase.execute).toHaveBeenCalledWith({
         userId: mockRequest.user.id,
         pagination: { page: 1, limit: 20 },
+        filters: { startDate: undefined, endDate: undefined },
       });
 
       expect(result).toHaveProperty('data');

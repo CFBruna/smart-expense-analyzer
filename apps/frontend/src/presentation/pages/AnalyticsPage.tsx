@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAnalytics } from '@application/hooks/useAnalytics';
+import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Wallet, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
@@ -7,6 +8,7 @@ import { useCurrency } from '@application/contexts/CurrencyContext';
 import { formatCurrency } from '@domain/types/currency.types';
 import { useLanguage } from '@application/contexts/LanguageContext';
 import { translateCategory } from '@application/utils/translate-category';
+import { formatExpenseCount } from '@application/utils/format-expense-count';
 
 
 const COLORS = [
@@ -25,15 +27,20 @@ type Period = 'week' | 'month' | 'year' | undefined;
 export const AnalyticsPage = () => {
     const [period, setPeriod] = useState<Period>(undefined);
     const { data, loading, error } = useAnalytics(period);
+    const { categories } = useCategories();
     const { currency } = useCurrency();
     const { language, t } = useLanguage();
+
+    const categoryColorMap = new Map(
+        categories.map(cat => [cat.name, cat.color])
+    );
 
     const chartData = data?.categoryBreakdown.map((item, index) => ({
         name: translateCategory(item.category, language),
         value: item.total,
         count: item.count,
         percentage: item.percentage,
-        fill: COLORS[index % COLORS.length],
+        fill: categoryColorMap.get(item.category) || COLORS[index % COLORS.length],
     }));
 
     return (
@@ -156,13 +163,13 @@ export const AnalyticsPage = () => {
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className="w-4 h-4 rounded"
-                                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                                                    style={{ backgroundColor: categoryColorMap.get(item.category) || COLORS[index % COLORS.length] }}
                                                 />
                                                 <div>
                                                     <p className="font-medium text-gray-900">
                                                         {translateCategory(item.category, language)}
                                                     </p>
-                                                    <p className="text-sm text-gray-600">{item.count} {t.dashboard.expenses}</p>
+                                                    <p className="text-sm text-gray-600">{formatExpenseCount(item.count, t)}</p>
                                                 </div>
                                             </div>
                                             <div className="text-right">

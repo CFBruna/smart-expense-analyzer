@@ -7,6 +7,7 @@ import {
   IExpenseRepository,
   EXPENSE_REPOSITORY,
 } from '../../../domain/repositories/expense.repository.interface';
+import { RedisCacheService } from '../../../infrastructure/cache/redis-cache.service';
 
 export interface DeleteCategoryInput {
   id: string;
@@ -20,6 +21,7 @@ export class DeleteCategoryUseCase {
     private readonly categoryRepository: ICategoryRepository,
     @Inject(EXPENSE_REPOSITORY)
     private readonly expenseRepository: IExpenseRepository,
+    private readonly cacheService: RedisCacheService,
   ) {}
 
   async execute(input: DeleteCategoryInput): Promise<void> {
@@ -38,5 +40,7 @@ export class DeleteCategoryUseCase {
     }
 
     await this.categoryRepository.delete(input.id);
+
+    await this.cacheService.invalidateUserCategoryCache(input.userId);
   }
 }

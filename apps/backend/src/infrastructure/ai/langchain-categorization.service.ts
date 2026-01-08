@@ -140,7 +140,6 @@ Consider context clues and LEARN from user's previous categorizations in the his
       const response = await this.model.invoke(formattedPrompt);
       const content = response.content.toString().trim();
 
-      // Remove markdown code blocks if present
       const jsonContent = content
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
@@ -156,15 +155,13 @@ Consider context clues and LEARN from user's previous categorizations in the his
         parsed.rationale,
       );
 
-      // Cache the result
-      await this.cacheService.set(cacheKey, category);
+      await this.cacheService.setCategoryCache(userId, description, category);
 
       return category;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`AI categorization failed: ${errorMessage}`, errorStack);
-      // Fallback to "Outros" category with low confidence
       return new Category('Outros', null, [], 0.0, 'AI categorization failed');
     }
   }

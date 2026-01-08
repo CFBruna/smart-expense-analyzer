@@ -24,4 +24,34 @@
   .card {
     @apply bg-white rounded-xl shadow-sm p-6;
   }
+
+  /* Horizontal scroll container for mobile filter buttons */
+  .filter-scroll-container {
+    @apply flex gap-2 overflow-x-auto pb-2;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scroll-snap-type: x mandatory;
+  }
+
+  .filter-scroll-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+  }
+
+  .filter-scroll-container>button {
+    @apply flex-shrink-0;
+    scroll-snap-align: start;
+  }
+
+  /* Compact card for filter sections - less padding on mobile */
+  .card-filter {
+    @apply bg-white rounded-xl shadow-sm p-4 md:p-6;
+  }
+
+  .card-filter .filter-scroll-container {
+    @apply mb-2;
+  }
 }

@@ -1,28 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AnalyticsSummary } from '@domain/interfaces/analytics.interface';
-import { analyticsService } from '../services/analytics.service';
+import { analyticsService, AnalyticsFilters } from '../services/analytics.service';
 
-export const useAnalytics = (period?: 'week' | 'month' | 'year') => {
+export const useAnalytics = () => {
     const [data, setData] = useState<AnalyticsSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [dateFilters, setDateFilters] = useState<AnalyticsFilters | undefined>(undefined);
 
-    const loadAnalytics = async () => {
+    const loadAnalytics = useCallback(async (filters?: AnalyticsFilters) => {
         setLoading(true);
         setError(null);
         try {
-            const data = await analyticsService.getAnalyticsSummary();
+            const data = await analyticsService.getAnalyticsSummary(filters);
             setData(data);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to load analytics');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    const applyDateFilters = useCallback((filters: AnalyticsFilters | undefined) => {
+        setDateFilters(filters);
+        loadAnalytics(filters);
+    }, [loadAnalytics]);
 
     useEffect(() => {
-        loadAnalytics();
-    }, [period]);
+        loadAnalytics(dateFilters);
+    }, []);
 
-    return { data, loading, error };
+    return { data, loading, error, dateFilters, applyDateFilters };
 };
+

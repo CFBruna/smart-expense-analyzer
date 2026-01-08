@@ -15,9 +15,19 @@ export interface UpdateExpenseData {
     };
 }
 
+export interface DateFilters {
+    startDate?: string;
+    endDate?: string;
+}
+
 export class ExpenseService {
-    async listExpenses(page = 1, limit = 20): Promise<ExpenseListResponse> {
-        return apiClient.get<ExpenseListResponse>(`/expenses?page=${page}&limit=${limit}`);
+    async listExpenses(page = 1, limit = 20, filters?: DateFilters): Promise<ExpenseListResponse> {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (filters?.startDate) params.append('startDate', filters.startDate);
+        if (filters?.endDate) params.append('endDate', filters.endDate);
+        return apiClient.get<ExpenseListResponse>(`/expenses?${params.toString()}`);
     }
 
     async createExpense(data: CreateExpenseDto): Promise<Expense> {

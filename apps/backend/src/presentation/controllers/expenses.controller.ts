@@ -64,18 +64,26 @@ export class ExpensesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List user expenses with pagination' })
+  @ApiOperation({ summary: 'List user expenses with pagination and date filters' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'ISO date string' })
+  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'ISO date string' })
   @ApiResponse({ status: 200, description: 'List of expenses' })
   async list(
     @Request() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
     const result = await this.listExpensesUseCase.execute({
       userId: req.user.id,
       pagination: { page, limit },
+      filters: {
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+      },
     });
 
     return {

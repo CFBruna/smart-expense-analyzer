@@ -67,6 +67,17 @@ export interface Translations {
         expense: string;
         expenses: string;
         confidence: string;
+        filters: {
+            today: string;
+            thisWeek: string;
+            thisMonth: string;
+            thisYear: string;
+            allTime: string;
+            customRange: string;
+            from: string;
+            to: string;
+            apply: string;
+        };
     };
 
     // Analytics
@@ -179,6 +190,17 @@ export const translations: Record<LanguageCode, Translations> = {
             expense: 'despesa',
             expenses: 'despesas',
             confidence: 'confiança',
+            filters: {
+                today: 'Hoje',
+                thisWeek: 'Esta Semana',
+                thisMonth: 'Este Mês',
+                thisYear: 'Este Ano',
+                allTime: 'Todos',
+                customRange: 'Período Personalizado',
+                from: 'De',
+                to: 'Até',
+                apply: 'Aplicar',
+            },
         },
         analytics: {
             title: 'Análises',
@@ -277,6 +299,17 @@ export const translations: Record<LanguageCode, Translations> = {
             expense: 'expense',
             expenses: 'expenses',
             confidence: 'confidence',
+            filters: {
+                today: 'Today',
+                thisWeek: 'This Week',
+                thisMonth: 'This Month',
+                thisYear: 'This Year',
+                allTime: 'All Time',
+                customRange: 'Custom Range',
+                from: 'From',
+                to: 'To',
+                apply: 'Apply',
+            },
         },
         analytics: {
             title: 'Analytics',
@@ -375,6 +408,17 @@ export const translations: Record<LanguageCode, Translations> = {
             expense: 'gasto',
             expenses: 'gastos',
             confidence: 'confianza',
+            filters: {
+                today: 'Hoy',
+                thisWeek: 'Esta Semana',
+                thisMonth: 'Este Mes',
+                thisYear: 'Este Año',
+                allTime: 'Todo',
+                customRange: 'Rango Personalizado',
+                from: 'Desde',
+                to: 'Hasta',
+                apply: 'Aplicar',
+            },
         },
         analytics: {
             title: 'Análisis',

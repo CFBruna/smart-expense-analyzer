@@ -19,9 +19,26 @@ export class AnalyticsController {
   @Get('summary')
   @ApiOperation({ summary: 'Get expense analytics summary' })
   @ApiQuery({ name: 'period', enum: TimePeriod, required: false })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Analytics data' })
-  async getSummary(@Request() req: any, @Query('period') period?: TimePeriod) {
-    const { startDate, endDate } = this.calculateDateRange(period);
+  async getSummary(
+    @Request() req: any,
+    @Query('period') period?: TimePeriod,
+    @Query('startDate') startDateStr?: string,
+    @Query('endDate') endDateStr?: string,
+  ) {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+
+    if (startDateStr || endDateStr) {
+      startDate = startDateStr ? new Date(startDateStr) : undefined;
+      endDate = endDateStr ? new Date(endDateStr) : undefined;
+    } else if (period) {
+      const range = this.calculateDateRange(period);
+      startDate = range.startDate;
+      endDate = range.endDate;
+    }
 
     return this.getAnalyticsUseCase.execute({
       userId: req.user.id,
@@ -30,15 +47,11 @@ export class AnalyticsController {
     });
   }
 
-  private calculateDateRange(period?: TimePeriod): { startDate?: Date; endDate?: Date } {
+  private calculateDateRange(period: TimePeriod): { startDate?: Date; endDate?: Date } {
     const now = new Date();
     const endDate = now;
-
-    if (!period) {
-      return {}; // All time
-    }
-
     let startDate: Date;
+
     switch (period) {
       case TimePeriod.WEEK:
         startDate = new Date(now);

@@ -61,16 +61,22 @@ export class UpdateExpenseUseCase {
         'Manually set by user',
       );
 
-      const cacheKey = this.cacheService.getCategoryKey(updatedDescription);
-      await this.cacheService.set(cacheKey, category);
+      await this.cacheService.setCategoryCache(input.userId, updatedDescription, category);
     } else if (input.description || input.amount) {
-      const userCategories = await this.categoryRepository.findByUserId(input.userId);
-      const categoriesForAI = userCategories.map((cat) => ({
+      const [defaultCategories, userSpecificCategories] = await Promise.all([
+        this.categoryRepository.findDefaults(),
+        this.categoryRepository.findByUserId(input.userId),
+      ]);
+
+      const allUserCategories = [...defaultCategories, ...userSpecificCategories];
+
+      const categoriesForAI = allUserCategories.map((cat) => ({
         name: cat.name,
         isDefault: cat.isDefault,
       }));
 
       category = await this.categorizationService.categorize(
+        input.userId,
         updatedDescription,
         updatedAmount,
         categoriesForAI,

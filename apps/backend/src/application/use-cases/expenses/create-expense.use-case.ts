@@ -64,7 +64,15 @@ export class CreateExpenseUseCase {
   ): Promise<void> {
     setImmediate(async () => {
       try {
-        const userCategories = await this.categoryRepository.findByUserId(userId);
+        // Fetch both default categories and user-specific categories
+        const [defaultCategories, userSpecificCategories] = await Promise.all([
+          this.categoryRepository.findDefaults(),
+          this.categoryRepository.findByUserId(userId),
+        ]);
+
+        // Combine both for the AI to use
+        const allUserCategories = [...defaultCategories, ...userSpecificCategories];
+
         const recentExpenses = await this.expenseRepository.findByUserId(userId, 1, 15);
 
         const expenseHistory: ExpenseHistoryItem[] = recentExpenses.data
@@ -76,12 +84,13 @@ export class CreateExpenseUseCase {
             date: e.date,
           }));
 
-        const categoriesForAI = userCategories.map((cat) => ({
+        const categoriesForAI = allUserCategories.map((cat) => ({
           name: cat.name,
           isDefault: cat.isDefault,
         }));
 
         const category = await this.categorizationService.categorize(
+          userId,
           description,
           amount,
           categoriesForAI,

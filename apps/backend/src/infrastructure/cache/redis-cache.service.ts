@@ -33,12 +33,36 @@ export class RedisCacheService implements OnModuleDestroy {
     return result === 1;
   }
 
-  getCategoryKey(description: string): string {
-    const hash = createHash('sha256')
-      .update(description.toLowerCase().trim())
-      .digest('hex')
-      .substring(0, 16);
+  getCategoryKey(userId: string, description: string): string {
+    const combined = `${userId}:${description.toLowerCase().trim()}`;
+    const hash = createHash('sha256').update(combined).digest('hex').substring(0, 16);
     return `ai:category:${hash}`;
+  }
+
+  private getUserCategorySetKey(userId: string): string {
+    return `user:${userId}:category-keys`;
+  }
+
+  async setCategoryCache(userId: string, description: string, value: any): Promise<void> {
+    const key = this.getCategoryKey(userId, description);
+    const setKey = this.getUserCategorySetKey(userId);
+
+    await Promise.all([
+      this.set(key, value),
+      this.client.sadd(setKey, key),
+      this.client.expire(setKey, this.DEFAULT_TTL),
+    ]);
+  }
+
+  async invalidateUserCategoryCache(userId: string): Promise<number> {
+    const setKey = this.getUserCategorySetKey(userId);
+    const keys = await this.client.smembers(setKey);
+
+    if (keys.length === 0) return 0;
+
+    const deleted = await this.client.del(...keys);
+    await this.client.del(setKey);
+    return deleted;
   }
 
   async onModuleDestroy() {

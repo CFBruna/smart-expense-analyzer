@@ -47,13 +47,13 @@ export class LangchainCategorizationService {
   }
 
   async categorize(
+    userId: string,
     description: string,
     amount: number,
     userCategories: UserCategory[],
     expenseHistory: ExpenseHistoryItem[] = [],
   ): Promise<Category> {
-    // Check cache first
-    const cacheKey = this.cacheService.getCategoryKey(description);
+    const cacheKey = this.cacheService.getCategoryKey(userId, description);
     const cached = await this.cacheService.get<Category>(cacheKey);
 
     if (cached) {
@@ -73,11 +73,10 @@ export class LangchainCategorizationService {
       const customCategories = userCategories.filter((c) => !c.isDefault).map((c) => c.name);
       const defaultCategories = userCategories.filter((c) => c.isDefault).map((c) => c.name);
 
-      // Build history section
       let historySection = '';
       if (expenseHistory.length > 0) {
         const historyItems = expenseHistory
-          .slice(0, 15) // Limit to last 15 expenses
+          .slice(0, 15)
           .map((h) => `- "${h.description}" → ${h.category} (${h.amount.toFixed(2)})`)
           .join('\n');
         historySection = `
@@ -141,7 +140,6 @@ Consider context clues and LEARN from user's previous categorizations in the his
       const response = await this.model.invoke(formattedPrompt);
       const content = response.content.toString().trim();
 
-      // Remove markdown code blocks if present
       const jsonContent = content
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
@@ -157,15 +155,13 @@ Consider context clues and LEARN from user's previous categorizations in the his
         parsed.rationale,
       );
 
-      // Cache the result
-      await this.cacheService.set(cacheKey, category);
+      await this.cacheService.setCategoryCache(userId, description, category);
 
       return category;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`AI categorization failed: ${errorMessage}`, errorStack);
-      // Fallback to "Outros" category with low confidence
       return new Category('Outros', null, [], 0.0, 'AI categorization failed');
     }
   }

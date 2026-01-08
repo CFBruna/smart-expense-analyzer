@@ -64,6 +64,7 @@ export interface Translations {
         creating: string;
         cancel: string;
         noExpenses: string;
+        expense: string;
         expenses: string;
         confidence: string;
     };
@@ -92,6 +93,26 @@ export interface Translations {
         Shopping: string;
         Bills: string;
         Education: string;
+    };
+
+    // Categories Page
+    categoriesPage: {
+        title: string;
+        subtitle: string;
+        newCategory: string;
+        editCategory: string;
+        categoryName: string;
+        categoryNamePlaceholder: string;
+        color: string;
+        icon: string;
+        createCategory: string;
+        updateCategory: string;
+        defaultCategory: string;
+        noCategories: string;
+        edit: string;
+        delete: string;
+        confirm: string;
+        cancel: string;
     };
 
     // Common
@@ -155,6 +176,7 @@ export const translations: Record<LanguageCode, Translations> = {
             creating: 'Criando...',
             cancel: 'Cancelar',
             noExpenses: 'Nenhuma despesa ainda. Adicione sua primeira despesa acima!',
+            expense: 'despesa',
             expenses: 'despesas',
             confidence: 'confiança',
         },
@@ -179,6 +201,24 @@ export const translations: Record<LanguageCode, Translations> = {
             Shopping: 'Compras',
             Bills: 'Contas',
             Education: 'Educação',
+        },
+        categoriesPage: {
+            title: 'Minhas Categorias',
+            subtitle: 'Gerencie suas categorias personalizadas',
+            newCategory: 'Nova Categoria',
+            editCategory: 'Editar Categoria',
+            categoryName: 'Nome da Categoria',
+            categoryNamePlaceholder: 'Ex: Supermercado',
+            color: 'Cor',
+            icon: 'Ícone',
+            createCategory: 'Criar Categoria',
+            updateCategory: 'Atualizar Categoria',
+            defaultCategory: 'Categoria padrão',
+            noCategories: 'Nenhuma categoria cadastrada ainda. Clique em "Nova Categoria" para começar.',
+            edit: 'Editar',
+            delete: 'Deletar',
+            confirm: 'Confirmar',
+            cancel: 'Cancelar',
         },
         common: {
             loading: 'Carregando...',
@@ -234,6 +274,7 @@ export const translations: Record<LanguageCode, Translations> = {
             creating: 'Creating...',
             cancel: 'Cancel',
             noExpenses: 'No expenses yet. Add your first expense above!',
+            expense: 'expense',
             expenses: 'expenses',
             confidence: 'confidence',
         },
@@ -258,6 +299,24 @@ export const translations: Record<LanguageCode, Translations> = {
             Shopping: 'Shopping',
             Bills: 'Bills',
             Education: 'Education',
+        },
+        categoriesPage: {
+            title: 'My Categories',
+            subtitle: 'Manage your custom categories',
+            newCategory: 'New Category',
+            editCategory: 'Edit Category',
+            categoryName: 'Category Name',
+            categoryNamePlaceholder: 'e.g., Groceries',
+            color: 'Color',
+            icon: 'Icon',
+            createCategory: 'Create Category',
+            updateCategory: 'Update Category',
+            defaultCategory: 'Default category',
+            noCategories: 'No categories yet. Click "New Category" to get started.',
+            edit: 'Edit',
+            delete: 'Delete',
+            confirm: 'Confirm',
+            cancel: 'Cancel',
         },
         common: {
             loading: 'Loading...',
@@ -313,6 +372,7 @@ export const translations: Record<LanguageCode, Translations> = {
             creating: 'Creando...',
             cancel: 'Cancelar',
             noExpenses: '¡Todavía no hay gastos. Agrega tu primer gasto arriba!',
+            expense: 'gasto',
             expenses: 'gastos',
             confidence: 'confianza',
         },
@@ -325,7 +385,7 @@ export const translations: Record<LanguageCode, Translations> = {
             totalSpent: 'Total Gastado',
             categories: 'Categorías',
             spendingByCategory: 'Gastos por Categoría',
-            categoryBreakdown: 'Desglose por Categoría',
+            categoryBreakdown: 'Desglose por Categorías',
             noData: 'No hay datos disponibles para el período seleccionado.',
         },
         categories: {
@@ -337,6 +397,24 @@ export const translations: Record<LanguageCode, Translations> = {
             Shopping: 'Compras',
             Bills: 'Cuentas',
             Education: 'Educación',
+        },
+        categoriesPage: {
+            title: 'Mis Categorías',
+            subtitle: 'Administra tus categorías personalizadas',
+            newCategory: 'Nueva Categoría',
+            editCategory: 'Editar Categoría',
+            categoryName: 'Nombre de la Categoría',
+            categoryNamePlaceholder: 'Ej: Supermercado',
+            color: 'Color',
+            icon: 'Ícono',
+            createCategory: 'Crear Categoría',
+            updateCategory: 'Actualizar Categoría',
+            defaultCategory: 'Categoría predeterminada',
+            noCategories: 'Aún no hay categorías. Haz clic en "Nueva Categoría" para comenzar.',
+            edit: 'Editar',
+            delete: 'Eliminar',
+            confirm: 'Confirmar',
+            cancel: 'Cancelar',
         },
         common: {
             loading: 'Cargando...',

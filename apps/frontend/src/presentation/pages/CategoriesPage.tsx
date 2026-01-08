@@ -6,6 +6,8 @@ import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
 import * as Icons from 'lucide-react';
 import { Category } from '@domain/interfaces/category.interface';
+import { useLanguage } from '@application/contexts/LanguageContext';
+import { translateCategory } from '@application/utils/translate-category';
 
 const categorySchema = z.object({
     name: z.string().min(2).max(50),
@@ -71,6 +73,7 @@ const DEFAULT_COLORS = [
 
 export const CategoriesPage = () => {
     const { categories, loading, error, createCategory, updateCategory, deleteCategory } = useCategories();
+    const { language, t } = useLanguage();
     const [showForm, setShowForm] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -105,7 +108,11 @@ export const CategoriesPage = () => {
             }
             setShowForm(false);
             setEditingCategory(null);
-            reset();
+            reset({
+                name: '',
+                color: '#3B82F6',
+                icon: 'tag',
+            });
         } catch (err) {
             console.error('Failed to save category:', err);
         } finally {
@@ -135,7 +142,11 @@ export const CategoriesPage = () => {
     const handleCancel = () => {
         setShowForm(false);
         setEditingCategory(null);
-        reset();
+        reset({
+            name: '',
+            color: '#3B82F6',
+            icon: 'tag',
+        });
     };
 
     const getIcon = (iconName: string) => {
@@ -149,10 +160,10 @@ export const CategoriesPage = () => {
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-3xl font-bold" style={{ color: '#0f172a' }}>
-                            Minhas Categorias
+                            {t.categoriesPage.title}
                         </h1>
                         <p className="mt-1" style={{ color: '#334155' }}>
-                            Gerencie suas categorias personalizadas
+                            {t.categoriesPage.subtitle}
                         </p>
                     </div>
                     {!showForm && (
@@ -161,7 +172,7 @@ export const CategoriesPage = () => {
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             <Icons.Plus className="w-5 h-5" />
-                            Nova Categoria
+                            {t.categoriesPage.newCategory}
                         </button>
                     )}
                 </div>
@@ -179,7 +190,7 @@ export const CategoriesPage = () => {
                     <div className="mb-8 rounded-lg shadow-sm border border-gray-200 p-6" style={{ backgroundColor: '#ffffff' }}>
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-semibold" style={{ color: '#0f172a' }}>
-                                {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
+                                {editingCategory ? t.categoriesPage.editCategory : t.categoriesPage.newCategory}
                             </h2>
                             <button
                                 onClick={handleCancel}
@@ -193,12 +204,12 @@ export const CategoriesPage = () => {
                             {/* Name Input */}
                             <div>
                                 <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
-                                    Nome da Categoria
+                                    {t.categoriesPage.categoryName}
                                 </label>
                                 <input
                                     {...register('name')}
                                     type="text"
-                                    placeholder="Ex: Supermercado"
+                                    placeholder={t.categoriesPage.categoryNamePlaceholder}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 />
                                 {errors.name && (
@@ -209,7 +220,7 @@ export const CategoriesPage = () => {
                             {/* Color Picker */}
                             <div>
                                 <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
-                                    Cor
+                                    {t.categoriesPage.color}
                                 </label>
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center gap-2">
@@ -244,7 +255,7 @@ export const CategoriesPage = () => {
                             {/* Icon Picker */}
                             <div>
                                 <label className="block text-sm font-medium mb-2" style={{ color: '#334155' }}>
-                                    Ícone
+                                    {t.categoriesPage.icon}
                                 </label>
                                 <div className="grid grid-cols-8 sm:grid-cols-12 gap-2">
                                     {ICONS.map((icon) => {
@@ -274,21 +285,20 @@ export const CategoriesPage = () => {
                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
                                 >
                                     {creating && <Icons.Loader2 className="w-5 h-5 animate-spin" />}
-                                    {editingCategory ? 'Atualizar' : 'Criar'} Categoria
+                                    {editingCategory ? t.categoriesPage.updateCategory : t.categoriesPage.createCategory}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleCancel}
                                     className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
-                                    Cancelar
+                                    {t.categoriesPage.cancel}
                                 </button>
                             </div>
                         </form>
                     </div>
                 )}
 
-                {/* Categories Grid */}
                 {loading && !categories.length ? (
                     <div className="flex items-center justify-center py-12">
                         <Icons.Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -313,10 +323,10 @@ export const CategoriesPage = () => {
                                         </div>
                                         <div className="flex-1">
                                             <h3 className="font-semibold" style={{ color: '#1e293b' }}>
-                                                {category.name}
+                                                {translateCategory(category.name, language)}
                                             </h3>
                                             {category.isDefault && (
-                                                <span className="text-xs text-gray-500">Categoria padrão</span>
+                                                <span className="text-xs text-gray-500">{t.categoriesPage.defaultCategory}</span>
                                             )}
                                         </div>
                                     </div>
@@ -328,7 +338,7 @@ export const CategoriesPage = () => {
                                                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                             >
                                                 <Icons.Edit2 className="w-4 h-4" />
-                                                Editar
+                                                {t.categoriesPage.edit}
                                             </button>
                                             {confirmDelete === category.id ? (
                                                 <div className="flex-1 flex gap-2">
@@ -336,13 +346,13 @@ export const CategoriesPage = () => {
                                                         onClick={() => handleDelete(category.id)}
                                                         className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
                                                     >
-                                                        Confirmar
+                                                        {t.categoriesPage.confirm}
                                                     </button>
                                                     <button
                                                         onClick={() => setConfirmDelete(null)}
                                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
                                                     >
-                                                        Cancelar
+                                                        {t.categoriesPage.cancel}
                                                     </button>
                                                 </div>
                                             ) : (
@@ -351,7 +361,7 @@ export const CategoriesPage = () => {
                                                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                                                 >
                                                     <Icons.Trash2 className="w-4 h-4" />
-                                                    Deletar
+                                                    {t.categoriesPage.delete}
                                                 </button>
                                             )}
                                         </div>
@@ -365,7 +375,7 @@ export const CategoriesPage = () => {
                 {!loading && categories.length === 0 && (
                     <div className="text-center py-12">
                         <p className="text-gray-500 dark:text-gray-400">
-                            Nenhuma categoria cadastrada ainda. Clique em "Nova Categoria" para começar.
+                            {t.categoriesPage.noCategories}
                         </p>
                     </div>
                 )}

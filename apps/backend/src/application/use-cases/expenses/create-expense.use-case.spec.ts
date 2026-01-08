@@ -20,6 +20,7 @@ describe('CreateExpenseUseCase', () => {
 
     mockCategoryRepository = {
       findByUserId: jest.fn(),
+      findDefaults: jest.fn(),
     };
 
     mockAiService = {

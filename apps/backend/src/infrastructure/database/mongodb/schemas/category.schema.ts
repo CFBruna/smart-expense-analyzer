@@ -23,5 +23,8 @@ export class CategorySchema {
 
 export const CategorySchemaFactory = SchemaFactory.createForClass(CategorySchema);
 
-CategorySchemaFactory.index({ userId: 1, name: 1 }, { unique: true });
+CategorySchemaFactory.index(
+  { userId: 1, name: 1 },
+  { unique: true, partialFilterExpression: { userId: { $exists: true, $ne: null } } },
+);
 CategorySchemaFactory.index({ userId: 1, isDefault: 1 });

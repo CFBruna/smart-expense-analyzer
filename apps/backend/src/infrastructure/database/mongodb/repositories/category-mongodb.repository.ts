@@ -43,6 +43,12 @@ export class CategoryMongodbRepository implements ICategoryRepository {
     return categories.map((cat) => this.toDomain(cat));
   }
 
+  async findDefaults(): Promise<Category[]> {
+    const categories = await this.categoryModel.find({ isDefault: true }).sort({ name: 1 }).exec();
+
+    return categories.map((cat) => this.toDomain(cat));
+  }
+
   async update(category: Category): Promise<Category> {
     const updated = await this.categoryModel
       .findByIdAndUpdate(

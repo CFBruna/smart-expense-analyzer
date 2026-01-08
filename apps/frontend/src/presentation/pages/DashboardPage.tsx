@@ -187,7 +187,7 @@ export const DashboardPage = () => {
                                     <option value="">Manter categoria da IA</option>
                                     {categories.map((cat) => (
                                         <option key={cat.id} value={cat.name}>
-                                            {cat.name} {cat.isDefault ? '(padrão)' : ''}
+                                            {translateCategory(cat.name, language)} {cat.isDefault ? '(padrão)' : ''}
                                         </option>
                                     ))}
                                 </select>

@@ -11,6 +11,7 @@ export interface ListExpensesQuery {
   userId: string;
   filters?: ExpenseFilters;
   pagination?: PaginationOptions;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface ListExpensesResult {
@@ -36,6 +37,7 @@ export class ListExpensesUseCase {
         query.userId,
         query.filters?.startDate,
         query.filters?.endDate,
+        query.sortOrder,
       );
 
       const page = query.pagination?.page || 1;
@@ -56,6 +58,7 @@ export class ListExpensesUseCase {
       query.userId,
       query.pagination?.page,
       query.pagination?.limit,
+      query.sortOrder,
     );
 
     return {

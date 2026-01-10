@@ -21,12 +21,13 @@ export interface DateFilters {
 }
 
 export class ExpenseService {
-    async listExpenses(page = 1, limit = 20, filters?: DateFilters): Promise<ExpenseListResponse> {
+    async listExpenses(page = 1, limit = 20, filters?: DateFilters, sortOrder: 'asc' | 'desc' = 'desc'): Promise<ExpenseListResponse> {
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
         if (filters?.startDate) params.append('startDate', filters.startDate);
         if (filters?.endDate) params.append('endDate', filters.endDate);
+        if (sortOrder) params.append('sortOrder', sortOrder);
         return apiClient.get<ExpenseListResponse>(`/expenses?${params.toString()}`);
     }
 

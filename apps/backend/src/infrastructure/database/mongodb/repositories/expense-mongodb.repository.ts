@@ -48,6 +48,7 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     userId: string,
     page?: number,
     limit?: number,
+    sortOrder?: 'asc' | 'desc',
   ): Promise<{ data: Expense[]; total: number }> {
     if (!Types.ObjectId.isValid(userId)) {
       return { data: [], total: 0 };
@@ -57,9 +58,10 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     const pageNum = page || 1;
     const limitNum = limit || 20;
     const skip = (pageNum - 1) * limitNum;
+    const sortVal = sortOrder === 'asc' ? 1 : -1;
 
     const [expenses, total] = await Promise.all([
-      this.expenseModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum).exec(),
+      this.expenseModel.find(query).sort({ date: sortVal }).skip(skip).limit(limitNum).exec(),
       this.expenseModel.countDocuments(query).exec(),
     ]);
 
@@ -146,6 +148,7 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     userId: string,
     startDate?: Date,
     endDate?: Date,
+    sortOrder?: 'asc' | 'desc',
   ): Promise<Expense[]> {
     if (!Types.ObjectId.isValid(userId)) {
       return [];
@@ -158,7 +161,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       if (endDate) query.date.$lte = endDate;
     }
 
-    const expenses = await this.expenseModel.find(query).sort({ date: -1 }).exec();
+    const sortVal = sortOrder === 'asc' ? 1 : -1;
+    const expenses = await this.expenseModel.find(query).sort({ date: sortVal }).exec();
     return expenses.map((e) => this.toDomain(e));
   }
 

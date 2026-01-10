@@ -50,7 +50,7 @@ const expenseSchema = z.object({
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 export const DashboardPage = () => {
-    const { expenses, loading, error, meta, loadExpenses, createExpense, updateExpense, deleteExpense, applyDateFilters } = useExpenses();
+    const { expenses, loading, error, meta, loadExpenses, createExpense, updateExpense, deleteExpense, applyDateFilters, applySort, sortOrder } = useExpenses();
     const { categories } = useCategories();
     const { currency } = useCurrency();
     const { language, t } = useLanguage();
@@ -73,19 +73,30 @@ export const DashboardPage = () => {
         setValue,
     } = useForm<ExpenseFormData>({
         resolver: zodResolver(expenseSchema),
-        defaultValues: {
-            date: new Date().toISOString().split('T')[0],
-        },
     });
 
+    const getFormattedDateInput = (date?: string | Date) => {
+        const d = date ? new Date(date) : new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    useEffect(() => {
+        reset({ date: getFormattedDateInput() });
+    }, []);
+
+
+
     const onSubmit = async (data: ExpenseFormData) => {
+        const isoDate = new Date(data.date).toISOString();
+
         if (editingId) {
             setCreating(true);
             try {
                 await updateExpense(editingId, {
                     description: data.description,
                     amount: data.amount,
-                    date: data.date,
+                    date: isoDate,
                     manualCategory: data.categoryName ? {
                         primary: data.categoryName,
                         secondary: null,
@@ -93,7 +104,11 @@ export const DashboardPage = () => {
                 });
                 setEditingId(null);
                 setShowForm(false);
-                reset();
+                reset({
+                    description: '',
+                    amount: 0,
+                    date: getFormattedDateInput(),
+                });
             } catch (err) {
                 console.error('Failed to update expense:', err);
             } finally {
@@ -105,10 +120,14 @@ export const DashboardPage = () => {
                 await createExpense({
                     description: data.description,
                     amount: data.amount,
-                    date: data.date,
+                    date: isoDate,
                 });
                 setShowForm(false);
-                reset();
+                reset({
+                    description: '',
+                    amount: 0,
+                    date: getFormattedDateInput(),
+                });
             } catch (err) {
                 console.error('Failed to create expense:', err);
             } finally {
@@ -121,7 +140,13 @@ export const DashboardPage = () => {
         setEditingId(expense.id);
         setValue('description', expense.description);
         setValue('amount', expense.amount);
-        setValue('date', expense.date.split('T')[0]);
+
+        // Format existing date to YYYY-MM-DDTHH:mm (local time)
+        const d = new Date(expense.date);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const localDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        setValue('date', localDate);
+
         setValue('categoryName', expense.category?.primary || '');
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -133,7 +158,7 @@ export const DashboardPage = () => {
         reset({
             description: '',
             amount: 0,
-            date: new Date().toISOString().split('T')[0],
+            date: getFormattedDateInput(),
         });
     };
 
@@ -173,7 +198,6 @@ export const DashboardPage = () => {
         }
     };
 
-    // Poll for pending categorizations (every 5s)
     useEffect(() => {
         const hasPending = expenses.some((e) => !e.category);
         if (!hasPending) return;
@@ -259,7 +283,7 @@ export const DashboardPage = () => {
                 )}
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 flex flex-row justify-between items-center gap-4">
                 <button
                     onClick={() => {
                         if (editingId) handleCancelEdit();
@@ -268,8 +292,26 @@ export const DashboardPage = () => {
                     className="btn-primary flex items-center gap-2"
                 >
                     <Plus size={20} />
-                    {t.dashboard.addExpense}
+                    {t.actions.add}
                 </button>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600 hidden sm:inline">
+                        {t.dashboard.filters.sort}
+                    </span>
+                    <select
+                        className="input-field py-2 px-3 pr-8 bg-white"
+                        value={sortOrder}
+                        onChange={(e) => applySort(e.target.value as 'asc' | 'desc')}
+                    >
+                        <option value="desc">
+                            {t.dashboard.filters.newest}
+                        </option>
+                        <option value="asc">
+                            {t.dashboard.filters.oldest}
+                        </option>
+                    </select>
+                </div>
             </div>
 
             {showForm && (
@@ -333,7 +375,7 @@ export const DashboardPage = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     {t.dashboard.date}
                                 </label>
-                                <input {...register('date')} type="date" className="input-field" />
+                                <input {...register('date')} type="datetime-local" className="input-field" />
                             </div>
                         </div>
 

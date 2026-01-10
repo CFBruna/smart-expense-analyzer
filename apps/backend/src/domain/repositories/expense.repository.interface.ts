@@ -20,10 +20,16 @@ export interface IExpenseRepository {
     userId: string,
     page?: number,
     limit?: number,
+    sortOrder?: 'asc' | 'desc',
   ): Promise<{ data: Expense[]; total: number }>;
   update(expense: Expense): Promise<Expense>;
   delete(id: string): Promise<void>;
-  findByUserIdAndDateRange(userId: string, startDate?: Date, endDate?: Date): Promise<Expense[]>;
+  findByUserIdAndDateRange(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+    sortOrder?: 'asc' | 'desc',
+  ): Promise<Expense[]>;
   getAnalyticsSummary(
     userId: string,
     startDate?: Date,

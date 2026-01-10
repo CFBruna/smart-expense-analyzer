@@ -69,6 +69,7 @@ export class ExpensesController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'startDate', required: false, type: String, description: 'ISO date string' })
   @ApiQuery({ name: 'endDate', required: false, type: String, description: 'ISO date string' })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiResponse({ status: 200, description: 'List of expenses' })
   async list(
     @Request() req: any,
@@ -76,6 +77,7 @@ export class ExpensesController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     const result = await this.listExpensesUseCase.execute({
       userId: req.user.id,
@@ -84,6 +86,7 @@ export class ExpensesController {
         startDate: startDate ? new Date(startDate) : undefined,
         endDate: endDate ? new Date(endDate) : undefined,
       },
+      sortOrder,
     });
 
     return {

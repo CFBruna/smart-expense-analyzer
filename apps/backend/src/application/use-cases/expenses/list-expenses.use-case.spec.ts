@@ -44,6 +44,7 @@ describe('ListExpensesUseCase', () => {
         'user123',
         undefined,
         undefined,
+        undefined,
       );
 
       expect(result).toEqual({
@@ -66,7 +67,7 @@ describe('ListExpensesUseCase', () => {
         pagination: { page: 2, limit: 10 },
       });
 
-      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith('user123', 2, 10);
+      expect(mockExpenseRepository.findByUserId).toHaveBeenCalledWith('user123', 2, 10, undefined);
 
       expect(result).toEqual({
         expenses: mockExpenses,

@@ -47,6 +47,8 @@ export interface Translations {
         analytics: string;
         categories: string;
         logout: string;
+        currency: string;
+        language: string;
     };
 
     // Dashboard
@@ -77,6 +79,9 @@ export interface Translations {
             from: string;
             to: string;
             apply: string;
+            sort: string;
+            newest: string;
+            oldest: string;
         };
     };
 
@@ -139,6 +144,7 @@ export interface Translations {
         save: string;
         cancel: string;
         confirm: string;
+        add: string;
     };
 
     // Modals
@@ -172,6 +178,8 @@ export const translations: Record<LanguageCode, Translations> = {
             analytics: 'Análises',
             categories: 'Categorias',
             logout: 'Sair',
+            currency: 'Moeda',
+            language: 'Idioma',
         },
         dashboard: {
             title: 'Minhas Despesas',
@@ -200,6 +208,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 from: 'De',
                 to: 'Até',
                 apply: 'Aplicar',
+                sort: 'Ordenar:',
+                newest: 'Mais Recentes',
+                oldest: 'Mais Antigos',
             },
         },
         analytics: {
@@ -252,6 +263,7 @@ export const translations: Record<LanguageCode, Translations> = {
             save: 'Salvar',
             cancel: 'Cancelar',
             confirm: 'Confirmar',
+            add: 'Adicionar',
         },
         modals: {
             deleteTitle: 'Confirmar Exclusão',
@@ -281,6 +293,8 @@ export const translations: Record<LanguageCode, Translations> = {
             analytics: 'Analytics',
             categories: 'Categories',
             logout: 'Logout',
+            currency: 'Currency',
+            language: 'Language',
         },
         dashboard: {
             title: 'My Expenses',
@@ -309,6 +323,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 from: 'From',
                 to: 'To',
                 apply: 'Apply',
+                sort: 'Sort:',
+                newest: 'Newest First',
+                oldest: 'Oldest First',
             },
         },
         analytics: {
@@ -361,6 +378,7 @@ export const translations: Record<LanguageCode, Translations> = {
             save: 'Save',
             cancel: 'Cancel',
             confirm: 'Confirm',
+            add: 'Add',
         },
         modals: {
             deleteTitle: 'Confirm Deletion',
@@ -390,6 +408,8 @@ export const translations: Record<LanguageCode, Translations> = {
             analytics: 'Análisis',
             categories: 'Categorías',
             logout: 'Salir',
+            currency: 'Moneda',
+            language: 'Idioma',
         },
         dashboard: {
             title: 'Mis Gastos',
@@ -418,6 +438,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 from: 'Desde',
                 to: 'Hasta',
                 apply: 'Aplicar',
+                sort: 'Ordenar:',
+                newest: 'Más Recientes',
+                oldest: 'Más Antiguos',
             },
         },
         analytics: {
@@ -470,6 +493,7 @@ export const translations: Record<LanguageCode, Translations> = {
             save: 'Guardar',
             cancel: 'Cancelar',
             confirm: 'Confirmar',
+            add: 'Añadir',
         },
         modals: {
             deleteTitle: 'Confirmar Eliminación',

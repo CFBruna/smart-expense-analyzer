@@ -29,11 +29,11 @@ export const LanguageSelector = () => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-center w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="flex items-center justify-center px-2 py-1.5 sm:px-3 sm:py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors min-w-[32px] sm:min-w-[40px]"
                 title={currentLanguage.name}
                 aria-label={`Language: ${currentLanguage.name}`}
             >
-                <span className="text-base">{currentLanguage.flag}</span>
+                <span className="text-base sm:text-lg">{currentLanguage.flag}</span>
             </button>
 
             {isOpen && (

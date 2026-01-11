@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expense as IExpense, Category as ICategory } from '@smart-expense-analyzer/shared';
 
-export class CategoryResponseDto {
+export class CategoryResponseDto implements ICategory {
   @ApiProperty({ example: 'Food' })
   primary!: string;
 
@@ -13,11 +14,11 @@ export class CategoryResponseDto {
   @ApiProperty({ example: 0.95 })
   confidence!: number;
 
-  @ApiProperty({ example: 'Lunch at restaurant based on description' })
-  rationale!: string;
+  @ApiProperty({ example: 'Lunch at restaurant based on description', required: false })
+  rationale?: string;
 }
 
-export class ExpenseResponseDto {
+export class ExpenseResponseDto implements IExpense {
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
   id!: string;
 

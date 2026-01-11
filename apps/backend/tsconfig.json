@@ -2,7 +2,16 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "declaration": false,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "paths": {
+            "@smart-expense-analyzer/shared": [
+                "../../packages/shared/src/index.ts"
+            ],
+            "@smart-expense-analyzer/shared/*": [
+                "../../packages/shared/src/*"
+            ]
+        }
     },
     "include": [
         "src/**/*",

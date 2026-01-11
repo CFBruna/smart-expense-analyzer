@@ -8,6 +8,8 @@ import { apiClient } from '@infrastructure/http/axios-client';
 export interface UpdateExpenseData {
     description?: string;
     amount?: number;
+    originalAmount?: number;
+    originalCurrency?: string;
     date?: string;
     manualCategory?: {
         primary: string;

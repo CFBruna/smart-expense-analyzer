@@ -86,6 +86,10 @@ export interface Translations {
         successCreated: string;
         successUpdated: string;
         successDeleted: string;
+        currency: string;
+        originalValue: string;
+        convertedFrom: string;
+        exchangeRate: string;
     };
 
     // Analytics
@@ -221,6 +225,10 @@ export const translations: Record<LanguageCode, Translations> = {
             successCreated: 'Despesa criada com sucesso!',
             successUpdated: 'Despesa atualizada com sucesso!',
             successDeleted: 'Despesa excluída com sucesso!',
+            currency: 'Moeda',
+            originalValue: 'Valor original',
+            convertedFrom: 'Convertido de',
+            exchangeRate: 'Taxa de câmbio',
         },
         analytics: {
             title: 'Análises',
@@ -342,6 +350,10 @@ export const translations: Record<LanguageCode, Translations> = {
             successCreated: 'Expense created successfully!',
             successUpdated: 'Expense updated successfully!',
             successDeleted: 'Expense deleted successfully!',
+            currency: 'Currency',
+            originalValue: 'Original value',
+            convertedFrom: 'Converted from',
+            exchangeRate: 'Exchange rate',
         },
         analytics: {
             title: 'Analytics',
@@ -463,6 +475,10 @@ export const translations: Record<LanguageCode, Translations> = {
             successCreated: '¡Gasto creado con éxito!',
             successUpdated: '¡Gasto actualizado con éxito!',
             successDeleted: '¡Gasto eliminado con éxito!',
+            currency: 'Moneda',
+            originalValue: 'Valor original',
+            convertedFrom: 'Convertido de',
+            exchangeRate: 'Tipo de cambio',
         },
         analytics: {
             title: 'Análisis',

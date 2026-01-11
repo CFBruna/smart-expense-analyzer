@@ -28,7 +28,7 @@ export const useAnalytics = () => {
 
     useEffect(() => {
         loadAnalytics(dateFilters);
-    }, []);
+    }, [loadAnalytics, dateFilters]);
 
     return { data, loading, error, dateFilters, applyDateFilters };
 };

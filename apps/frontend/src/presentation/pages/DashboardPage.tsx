@@ -89,7 +89,7 @@ export const DashboardPage = () => {
             date: getFormattedDateInput(),
             currency: currency
         });
-    }, [currency]);
+    }, [currency, reset]);
 
     useEffect(() => {
         if (successMessage && successMessageRef.current) {

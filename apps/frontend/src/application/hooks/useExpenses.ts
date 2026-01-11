@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Expense, CreateExpenseDto } from '@domain/interfaces/expense.interface';
 import { expenseService, DateFilters } from '../services/expense.service';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 export const useExpenses = () => {
+    const { currency } = useCurrency();
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [meta, setMeta] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
     const [loading, setLoading] = useState(false);
@@ -66,7 +68,7 @@ export const useExpenses = () => {
 
     useEffect(() => {
         loadExpenses();
-    }, [loadExpenses]);
+    }, [loadExpenses, currency]);
 
     return {
         expenses,
@@ -83,4 +85,3 @@ export const useExpenses = () => {
         applySort,
     };
 };
-

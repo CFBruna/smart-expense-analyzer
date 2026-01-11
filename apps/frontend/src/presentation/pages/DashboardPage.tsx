@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useExpenses } from '@application/hooks/useExpenses';
 import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
-import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2, Filter } from 'lucide-react';
+import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2, Filter, CheckCircle } from 'lucide-react';
 import { useCurrency } from '@application/contexts/CurrencyContext';
 import { formatCurrency } from '@domain/types/currency.types';
 import { useLanguage } from '@application/contexts/LanguageContext';
@@ -63,6 +63,8 @@ export const DashboardPage = () => {
     const [showCustomRange, setShowCustomRange] = useState(false);
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const successMessageRef = useRef<HTMLDivElement>(null);
 
 
     const {
@@ -85,7 +87,11 @@ export const DashboardPage = () => {
         reset({ date: getFormattedDateInput() });
     }, []);
 
-
+    useEffect(() => {
+        if (successMessage && successMessageRef.current) {
+            successMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [successMessage]);
 
     const onSubmit = async (data: ExpenseFormData) => {
         const isoDate = new Date(data.date).toISOString();
@@ -104,6 +110,8 @@ export const DashboardPage = () => {
                 });
                 setEditingId(null);
                 setShowForm(false);
+                setSuccessMessage(t.dashboard.successUpdated);
+                setTimeout(() => setSuccessMessage(null), 3000);
                 reset({
                     description: '',
                     amount: 0,
@@ -123,6 +131,8 @@ export const DashboardPage = () => {
                     date: isoDate,
                 });
                 setShowForm(false);
+                setSuccessMessage(t.dashboard.successCreated);
+                setTimeout(() => setSuccessMessage(null), 3000);
                 reset({
                     description: '',
                     amount: 0,
@@ -141,7 +151,6 @@ export const DashboardPage = () => {
         setValue('description', expense.description);
         setValue('amount', expense.amount);
 
-        // Format existing date to YYYY-MM-DDTHH:mm (local time)
         const d = new Date(expense.date);
         const pad = (n: number) => n.toString().padStart(2, '0');
         const localDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -171,6 +180,8 @@ export const DashboardPage = () => {
         try {
             await deleteExpense(expenseId);
             setConfirmDelete(null);
+            setSuccessMessage(t.dashboard.successDeleted);
+            setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
             console.error('Failed to delete expense:', err);
         } finally {
@@ -215,6 +226,16 @@ export const DashboardPage = () => {
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
                     <AlertCircle size={20} />
                     <span>{error}</span>
+                </div>
+            )}
+
+            {successMessage && (
+                <div
+                    ref={successMessageRef}
+                    className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 animate-slide-up"
+                >
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <p className="text-green-800">{successMessage}</p>
                 </div>
             )}
 

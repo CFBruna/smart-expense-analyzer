@@ -17,6 +17,7 @@ export class UserMongodbRepository implements IUserRepository {
       email: user.email,
       passwordHash: user.passwordHash,
       name: user.name,
+      currency: user.currency,
     });
 
     const saved = await userDoc.save();
@@ -42,12 +43,25 @@ export class UserMongodbRepository implements IUserRepository {
     return count > 0;
   }
 
+  async update(id: string, updates: Partial<User>): Promise<User> {
+    const updatedUserDoc = await this.userModel
+      .findByIdAndUpdate(id, { $set: updates }, { new: true })
+      .exec();
+
+    if (!updatedUserDoc) {
+      throw new Error(`User with id ${id} not found`);
+    }
+
+    return this.toDomain(updatedUserDoc);
+  }
+
   private toDomain(userDoc: UserDocument): User {
     return new User(
       userDoc._id.toString(),
       userDoc.email,
       userDoc.passwordHash,
       userDoc.name,
+      userDoc.currency || 'BRL',
       userDoc.createdAt || new Date(),
     );
   }

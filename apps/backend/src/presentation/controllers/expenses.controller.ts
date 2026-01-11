@@ -8,21 +8,13 @@ import {
   Query,
   UseGuards,
   Request,
-  ParseIntPipe,
-  DefaultValuePipe,
   Param,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateExpenseDto } from '../../application/dtos/create-expense.dto';
 import { UpdateExpenseDto } from '../../application/dtos/update-expense.dto';
 import { ExpenseResponseDto } from '../../application/dtos/expense-response.dto';
+import { ListExpensesDto, ExpenseListResponseDto } from '../../application/dtos/list-expenses.dto';
 import { CreateExpenseUseCase } from '../../application/use-cases/expenses/create-expense.use-case';
 import { UpdateExpenseUseCase } from '../../application/use-cases/expenses/update-expense.use-case';
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
@@ -58,39 +50,32 @@ export class ExpensesController {
       description: dto.description,
       amount: dto.amount,
       date: new Date(dto.date),
+      originalAmount: dto.originalAmount,
+      originalCurrency: dto.originalCurrency,
     });
 
     return this.toResponseDto(expense);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List user expenses with pagination and date filters' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'ISO date string' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'ISO date string' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
-  @ApiResponse({ status: 200, description: 'List of expenses' })
-  async list(
-    @Request() req: any,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
-  ) {
+  @ApiOperation({ summary: 'List user expenses' })
+  @ApiResponse({ status: 200, type: ExpenseListResponseDto })
+  async findAll(@Query() query: ListExpensesDto, @Request() req: any) {
     const result = await this.listExpensesUseCase.execute({
       userId: req.user.id,
-      pagination: { page, limit },
       filters: {
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined,
+        startDate: query.startDate ? new Date(query.startDate) : undefined,
+        endDate: query.endDate ? new Date(query.endDate) : undefined,
       },
-      sortOrder,
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+      },
+      sortOrder: query.sortOrder,
     });
 
     return {
-      data: result.expenses.map((e: Expense) => this.toResponseDto(e)),
+      data: result.expenses.map((expense) => this.toResponseDto(expense)),
       meta: {
         total: result.total,
         page: result.page,
@@ -101,15 +86,12 @@ export class ExpensesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get expense by ID' })
+  @ApiOperation({ summary: 'Get an expense by ID' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
   @ApiResponse({ status: 200, description: 'Expense found', type: ExpenseResponseDto })
   @ApiResponse({ status: 404, description: 'Expense not found' })
-  async getById(@Request() req: any, @Param('id') id: string): Promise<ExpenseResponseDto> {
-    const expense = await this.getExpenseByIdUseCase.execute({
-      id,
-      userId: req.user.id,
-    });
+  async findOne(@Request() req: any, @Param('id') id: string): Promise<ExpenseResponseDto> {
+    const expense = await this.getExpenseByIdUseCase.execute({ userId: req.user.id, id });
     return this.toResponseDto(expense);
   }
 
@@ -130,6 +112,8 @@ export class ExpensesController {
       amount: dto.amount,
       date: dto.date ? new Date(dto.date) : undefined,
       manualCategory: dto.manualCategory,
+      originalAmount: dto.originalAmount,
+      originalCurrency: dto.originalCurrency,
     });
     return this.toResponseDto(expense);
   }
@@ -137,13 +121,10 @@ export class ExpensesController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete an expense' })
   @ApiParam({ name: 'id', description: 'Expense ID' })
-  @ApiResponse({ status: 204, description: 'Expense deleted' })
+  @ApiResponse({ status: 200, description: 'Expense deleted' })
   @ApiResponse({ status: 404, description: 'Expense not found' })
-  async delete(@Request() req: any, @Param('id') id: string): Promise<void> {
-    await this.deleteExpenseUseCase.execute({
-      id,
-      userId: req.user.id,
-    });
+  async remove(@Request() req: any, @Param('id') id: string): Promise<void> {
+    await this.deleteExpenseUseCase.execute({ id, userId: req.user.id });
   }
 
   private toResponseDto(expense: Expense): ExpenseResponseDto {
@@ -152,6 +133,8 @@ export class ExpensesController {
       description: expense.description,
       amount: expense.amount,
       date: expense.date.toISOString(),
+      originalAmount: expense.originalAmount,
+      originalCurrency: expense.originalCurrency,
       category: expense.category
         ? {
             primary: expense.category.primary,

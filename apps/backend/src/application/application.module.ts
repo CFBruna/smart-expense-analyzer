@@ -12,6 +12,7 @@ import { CreateCategoryUseCase } from './use-cases/categories/create-category.us
 import { ListCategoriesUseCase } from './use-cases/categories/list-categories.use-case';
 import { UpdateCategoryUseCase } from './use-cases/categories/update-category.use-case';
 import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.use-case';
+import { UpdateUserCurrencyUseCase } from './use-cases/user/update-user-currency.use-case';
 
 @Module({
   imports: [InfrastructureModule],
@@ -28,6 +29,7 @@ import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.us
     ListCategoriesUseCase,
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
+    UpdateUserCurrencyUseCase,
   ],
   exports: [
     RegisterUserUseCase,
@@ -42,6 +44,7 @@ import { DeleteCategoryUseCase } from './use-cases/categories/delete-category.us
     ListCategoriesUseCase,
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
+    UpdateUserCurrencyUseCase,
   ],
 })
 export class ApplicationModule {}

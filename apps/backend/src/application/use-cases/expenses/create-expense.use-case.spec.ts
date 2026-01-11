@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateExpenseUseCase } from './create-expense.use-case';
 import { EXPENSE_REPOSITORY } from '../../../domain/repositories/expense.repository.interface';
 import { CATEGORY_REPOSITORY } from '../../../domain/repositories/category.repository.interface';
+import { USER_REPOSITORY } from '../../../domain/repositories/user.repository.interface';
 import { LangchainCategorizationService } from '../../../infrastructure/ai/langchain-categorization.service';
+import { ExchangeRateService } from '../../../infrastructure/services/exchange-rate.service';
 import { Expense } from '../../../domain/entities/expense.entity';
 import { Category } from '../../../domain/value-objects/category.vo';
 
@@ -10,7 +12,9 @@ describe('CreateExpenseUseCase', () => {
   let useCase: CreateExpenseUseCase;
   let mockExpenseRepository: any;
   let mockCategoryRepository: any;
-  let mockAiService: any;
+  let mockUserRepository: any;
+  let mockCategorizationService: any;
+  let mockExchangeRateService: any;
 
   beforeEach(async () => {
     mockExpenseRepository = {
@@ -20,11 +24,21 @@ describe('CreateExpenseUseCase', () => {
 
     mockCategoryRepository = {
       findByUserId: jest.fn(),
-      findDefaults: jest.fn(),
+      findDefaults: jest.fn().mockResolvedValue([]),
     };
 
-    mockAiService = {
+    mockUserRepository = {
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'user123', currency: 'BRL', email: 'test@example.com' }),
+    };
+
+    mockCategorizationService = {
       categorize: jest.fn(),
+    };
+
+    mockExchangeRateService = {
+      getExchangeRate: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -32,9 +46,14 @@ describe('CreateExpenseUseCase', () => {
         CreateExpenseUseCase,
         { provide: EXPENSE_REPOSITORY, useValue: mockExpenseRepository },
         { provide: CATEGORY_REPOSITORY, useValue: mockCategoryRepository },
+        { provide: USER_REPOSITORY, useValue: mockUserRepository },
         {
           provide: LangchainCategorizationService,
-          useValue: mockAiService,
+          useValue: mockCategorizationService,
+        },
+        {
+          provide: ExchangeRateService,
+          useValue: mockExchangeRateService,
         },
       ],
     }).compile();
@@ -64,7 +83,7 @@ describe('CreateExpenseUseCase', () => {
       mockExpenseRepository.create.mockResolvedValue(expense);
       mockExpenseRepository.findByUserId.mockResolvedValue({ data: [], total: 0 });
       mockCategoryRepository.findByUserId.mockResolvedValue([]);
-      mockAiService.categorize.mockResolvedValue(category);
+      mockCategorizationService.categorize.mockResolvedValue(category);
 
       const result = await useCase.execute(command);
 
@@ -97,7 +116,7 @@ describe('CreateExpenseUseCase', () => {
       mockExpenseRepository.create.mockResolvedValue(expense);
       mockExpenseRepository.findByUserId.mockResolvedValue({ data: [], total: 0 });
       mockCategoryRepository.findByUserId.mockResolvedValue([]);
-      mockAiService.categorize.mockResolvedValue(category);
+      mockCategorizationService.categorize.mockResolvedValue(category);
 
       await useCase.execute(command);
 

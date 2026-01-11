@@ -27,6 +27,12 @@ export class ExpenseResponseDto {
   @ApiProperty({ example: 75000 })
   amount!: number;
 
+  @ApiProperty({ example: 75000 })
+  originalAmount!: number;
+
+  @ApiProperty({ example: 'BRL' })
+  originalCurrency!: string;
+
   @ApiProperty({ example: '2026-01-05T00:00:00.000Z' })
   date!: string;
 

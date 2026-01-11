@@ -12,6 +12,8 @@ export interface Expense {
     amount: number;
     date: string;
     category: Category | null;
+    originalAmount?: number;
+    originalCurrency?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -19,6 +21,8 @@ export interface Expense {
 export interface CreateExpenseDto {
     description: string;
     amount: number;
+    originalAmount?: number;
+    originalCurrency?: string;
     date: string;
 }
 

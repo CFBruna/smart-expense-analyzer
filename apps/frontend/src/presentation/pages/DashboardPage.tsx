@@ -7,7 +7,7 @@ import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
 import { Plus, Calendar, Tag, Loader2, AlertCircle, Edit2, Trash2, Filter, CheckCircle } from 'lucide-react';
 import { useCurrency } from '@application/contexts/CurrencyContext';
-import { formatCurrency } from '@domain/types/currency.types';
+import { formatCurrency, CURRENCIES, CurrencyCode } from '@domain/types/currency.types';
 import { useLanguage } from '@application/contexts/LanguageContext';
 import { translateCategory } from '@application/utils/translate-category';
 import { Expense } from '@domain/interfaces/expense.interface';
@@ -43,6 +43,7 @@ const getDateRange = (preset: FilterPreset): { startDate?: string; endDate?: str
 const expenseSchema = z.object({
     description: z.string().min(2),
     amount: z.number().min(0.01),
+    currency: z.string().length(3),
     date: z.string(),
     categoryName: z.string().optional(),
 });
@@ -84,8 +85,11 @@ export const DashboardPage = () => {
     };
 
     useEffect(() => {
-        reset({ date: getFormattedDateInput() });
-    }, []);
+        reset({
+            date: getFormattedDateInput(),
+            currency: currency
+        });
+    }, [currency, reset]);
 
     useEffect(() => {
         if (successMessage && successMessageRef.current) {
@@ -107,6 +111,8 @@ export const DashboardPage = () => {
                         primary: data.categoryName,
                         secondary: null,
                     } : undefined,
+                    originalAmount: data.amount,
+                    originalCurrency: data.currency,
                 });
                 setEditingId(null);
                 setShowForm(false);
@@ -129,6 +135,8 @@ export const DashboardPage = () => {
                     description: data.description,
                     amount: data.amount,
                     date: isoDate,
+                    originalAmount: data.amount,
+                    originalCurrency: data.currency,
                 });
                 setShowForm(false);
                 setSuccessMessage(t.dashboard.successCreated);
@@ -149,7 +157,8 @@ export const DashboardPage = () => {
     const handleEdit = (expense: Expense) => {
         setEditingId(expense.id);
         setValue('description', expense.description);
-        setValue('amount', expense.amount);
+        setValue('amount', expense.originalAmount || expense.amount);
+        setValue('currency', expense.originalCurrency || currency);
 
         const d = new Date(expense.date);
         const pad = (n: number) => n.toString().padStart(2, '0');
@@ -380,13 +389,25 @@ export const DashboardPage = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     {t.dashboard.amount}
                                 </label>
-                                <input
-                                    {...register('amount', { valueAsNumber: true })}
-                                    type="number"
-                                    step="0.01"
-                                    className="input-field"
-                                    placeholder="25.50"
-                                />
+                                <div className="flex gap-2">
+                                    <select
+                                        {...register('currency')}
+                                        className="input-field w-24 px-2"
+                                    >
+                                        {Object.values(CURRENCIES).map((c) => (
+                                            <option key={c.code} value={c.code}>
+                                                {c.code}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        {...register('amount', { valueAsNumber: true })}
+                                        type="number"
+                                        step="0.01"
+                                        className="input-field flex-1"
+                                        placeholder="25.50"
+                                    />
+                                </div>
                                 {errors.amount && (
                                     <p className="mt-1 text-sm text-red-600">{t.dashboard.amountError}</p>
                                 )}
@@ -499,8 +520,15 @@ export const DashboardPage = () => {
                                                     minute: '2-digit'
                                                 })}
                                             </div>
-                                            <div className="font-semibold text-gray-900 ml-auto">
-                                                {formatCurrency(expense.amount, currency)}
+                                            <div className="ml-auto text-right">
+                                                <div className="font-semibold text-gray-900">
+                                                    {formatCurrency(expense.amount, currency)}
+                                                </div>
+                                                {expense.originalCurrency && expense.originalCurrency !== currency && (
+                                                    <div className="text-xs text-gray-500">
+                                                        {t.dashboard.convertedFrom} {formatCurrency(expense.originalAmount || expense.amount, expense.originalCurrency as CurrencyCode)}
+                                                    </div>
+                                                )}
                                             </div>
 
                                         </div>

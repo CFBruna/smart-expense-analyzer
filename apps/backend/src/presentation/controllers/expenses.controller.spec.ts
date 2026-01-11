@@ -117,12 +117,16 @@ describe('ExpensesController', () => {
 
       mockListUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await controller.list(mockRequest, 1, 20);
+      const result = await controller.findAll(
+        { page: 1, limit: 20, sortOrder: 'desc' },
+        mockRequest,
+      );
 
       expect(mockListUseCase.execute).toHaveBeenCalledWith({
         userId: mockRequest.user.id,
         pagination: { page: 1, limit: 20 },
         filters: { startDate: undefined, endDate: undefined },
+        sortOrder: 'desc',
       });
 
       expect(result).toHaveProperty('data');

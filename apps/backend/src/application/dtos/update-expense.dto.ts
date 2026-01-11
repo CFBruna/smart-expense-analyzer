@@ -30,6 +30,17 @@ export class UpdateExpenseDto {
   @IsDateString()
   date?: string;
 
+  @ApiPropertyOptional({ example: 45.5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  originalAmount?: number;
+
+  @ApiPropertyOptional({ example: 'BRL' })
+  @IsOptional()
+  @IsString()
+  originalCurrency?: string;
+
   @ApiPropertyOptional({ type: ManualCategoryDto })
   @IsOptional()
   @ValidateNested()

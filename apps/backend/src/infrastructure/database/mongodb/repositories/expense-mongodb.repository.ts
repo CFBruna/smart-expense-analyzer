@@ -18,6 +18,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       userId: new Types.ObjectId(expense.userId),
       description: expense.description,
       amount: expense.amount,
+      originalAmount: expense.originalAmount,
+      originalCurrency: expense.originalCurrency,
       date: expense.date,
       category: expense.category
         ? {
@@ -79,6 +81,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     const updateData: any = {
       description: expense.description,
       amount: expense.amount,
+      originalAmount: expense.originalAmount,
+      originalCurrency: expense.originalCurrency,
       date: expense.date,
       updatedAt: expense.updatedAt,
     };
@@ -244,6 +248,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       expenseDoc.amount,
       expenseDoc.date,
       category,
+      expenseDoc.originalAmount || expenseDoc.amount,
+      expenseDoc.originalCurrency || 'BRL',
       expenseDoc.createdAt || new Date(),
       expenseDoc.updatedAt || new Date(),
     );

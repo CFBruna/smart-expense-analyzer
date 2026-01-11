@@ -12,12 +12,19 @@ import {
   LangchainCategorizationService,
   ExpenseHistoryItem,
 } from '../../../infrastructure/ai/langchain-categorization.service';
+import { ExchangeRateService } from '../../../infrastructure/services/exchange-rate.service';
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '../../../domain/repositories/user.repository.interface';
 
 export interface CreateExpenseCommand {
   userId: string;
   description: string;
   amount: number;
   date: Date;
+  originalAmount?: number;
+  originalCurrency?: string;
 }
 
 @Injectable()
@@ -27,17 +34,40 @@ export class CreateExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject(CATEGORY_REPOSITORY)
     private readonly categoryRepository: ICategoryRepository,
+    @Inject(USER_REPOSITORY)
+    private readonly userRepository: IUserRepository,
     private readonly categorizationService: LangchainCategorizationService,
-  ) {}
+    private readonly exchangeRateService: ExchangeRateService,
+  ) { }
 
   async execute(command: CreateExpenseCommand): Promise<Expense> {
+    const user = await this.userRepository.findById(command.userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const originalAmount = command.originalAmount || command.amount;
+    const originalCurrency = command.originalCurrency || user.currency;
+    let amount = originalAmount;
+
+    if (originalCurrency !== user.currency) {
+      amount = await this.exchangeRateService.convertAmount(
+        command.originalAmount || command.amount,
+        command.originalCurrency || 'BRL',
+        user.currency, // Convert to user's preferred currency
+        command.date // Use the expense date for historical rates
+      );
+    }
+
     const expense = new Expense(
       null,
       command.userId,
       command.description,
-      command.amount,
+      amount,
       command.date,
       null,
+      originalAmount,
+      originalCurrency,
       new Date(),
       new Date(),
     );
@@ -64,13 +94,11 @@ export class CreateExpenseUseCase {
   ): Promise<void> {
     setImmediate(async () => {
       try {
-        // Fetch both default categories and user-specific categories
         const [defaultCategories, userSpecificCategories] = await Promise.all([
           this.categoryRepository.findDefaults(),
           this.categoryRepository.findByUserId(userId),
         ]);
 
-        // Combine both for the AI to use
         const allUserCategories = [...defaultCategories, ...userSpecificCategories];
 
         const recentExpenses = await this.expenseRepository.findByUserId(userId, 1, 15);

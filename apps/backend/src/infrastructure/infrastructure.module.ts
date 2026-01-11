@@ -16,6 +16,7 @@ import { BcryptService } from './auth/bcrypt.service';
 import { JwtAuthService } from './auth/jwt-auth.service';
 import { LangchainCategorizationService } from './ai/langchain-categorization.service';
 import { SeedService } from './database/seed.service';
+import { ExchangeRateService } from './services/exchange-rate.service';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { SeedService } from './database/seed.service';
     JwtAuthService,
     LangchainCategorizationService,
     SeedService,
+    ExchangeRateService,
   ],
   exports: [
     USER_REPOSITORY,
@@ -68,6 +70,7 @@ import { SeedService } from './database/seed.service';
     BcryptService,
     JwtAuthService,
     LangchainCategorizationService,
+    ExchangeRateService,
   ],
 })
-export class InfrastructureModule {}
+export class InfrastructureModule { }

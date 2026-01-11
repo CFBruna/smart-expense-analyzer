@@ -6,6 +6,7 @@ import {
   Min,
   MinLength,
   MaxLength,
+  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -25,4 +26,17 @@ export class CreateExpenseDto {
   @ApiProperty({ example: '2026-01-04T00:00:00Z' })
   @IsDateString({}, { message: 'Date must be a valid ISO 8601 date string' })
   date!: string;
+
+  @ApiProperty({ example: 25.5, minimum: 0.01, required: false })
+  @IsOptional()
+  @IsNumber({}, { message: 'Original amount must be a number' })
+  @Min(0.01, { message: 'Original amount must be greater than 0' })
+  originalAmount?: number;
+
+  @ApiProperty({ example: 'BRL', required: false })
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(3)
+  originalCurrency?: string;
 }

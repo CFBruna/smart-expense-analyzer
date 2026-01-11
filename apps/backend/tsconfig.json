@@ -3,9 +3,13 @@
     "compilerOptions": {
         "declaration": false,
         "outDir": "./dist",
+        "baseUrl": "./",
         "paths": {
             "@smart-expense-analyzer/shared": [
                 "../../packages/shared/src/index.ts"
+            ],
+            "@smart-expense-analyzer/shared/*": [
+                "../../packages/shared/src/*"
             ]
         }
     },

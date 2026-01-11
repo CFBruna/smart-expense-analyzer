@@ -43,7 +43,7 @@ export class UpdateExpenseUseCase {
     private readonly categorizationService: LangchainCategorizationService,
     private readonly cacheService: RedisCacheService,
     private readonly exchangeRateService: ExchangeRateService,
-  ) { }
+  ) {}
 
   async execute(input: UpdateExpenseInput): Promise<Expense> {
     const existingExpense = await this.expenseRepository.findById(input.id);
@@ -63,8 +63,13 @@ export class UpdateExpenseUseCase {
 
     const updatedDescription = input.description ?? existingExpense.description;
     const updatedDate = input.date ?? existingExpense.date;
-    const updatedOriginalAmount = input.originalAmount ?? existingExpense.originalAmount ?? input.amount ?? existingExpense.amount;
-    const updatedOriginalCurrency = input.originalCurrency ?? existingExpense.originalCurrency ?? user.currency;
+    const updatedOriginalAmount =
+      input.originalAmount ??
+      existingExpense.originalAmount ??
+      input.amount ??
+      existingExpense.amount;
+    const updatedOriginalCurrency =
+      input.originalCurrency ?? existingExpense.originalCurrency ?? user.currency;
 
     let updatedAmount = updatedOriginalAmount;
 
@@ -73,7 +78,7 @@ export class UpdateExpenseUseCase {
         updatedOriginalAmount,
         updatedOriginalCurrency,
         user.currency,
-        updatedDate
+        updatedDate,
       );
     } else {
       updatedAmount = updatedOriginalAmount;
@@ -91,7 +96,8 @@ export class UpdateExpenseUseCase {
       );
 
       await this.cacheService.setCategoryCache(input.userId, updatedDescription, category);
-    } else if (input.description || input.amount || input.originalAmount) { // If amount changed, categorization might change? Usually amount doesn't affect category much, but description does.
+    } else if (input.description || input.amount || input.originalAmount) {
+      // If amount changed, categorization might change? Usually amount doesn't affect category much, but description does.
       const [defaultCategories, userSpecificCategories] = await Promise.all([
         this.categoryRepository.findDefaults(),
         this.categoryRepository.findByUserId(input.userId),

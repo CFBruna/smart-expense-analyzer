@@ -8,18 +8,9 @@ import {
   Query,
   UseGuards,
   Request,
-  ParseIntPipe,
-  DefaultValuePipe,
   Param,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CreateExpenseDto } from '../../application/dtos/create-expense.dto';
 import { UpdateExpenseDto } from '../../application/dtos/update-expense.dto';
 import { ExpenseResponseDto } from '../../application/dtos/expense-response.dto';
@@ -43,7 +34,7 @@ export class ExpensesController {
     private readonly listExpensesUseCase: ListExpensesUseCase,
     private readonly getExpenseByIdUseCase: GetExpenseByIdUseCase,
     private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new expense (AI categorization in background)' })
@@ -146,12 +137,12 @@ export class ExpensesController {
       originalCurrency: expense.originalCurrency,
       category: expense.category
         ? {
-          primary: expense.category.primary,
-          secondary: expense.category.secondary,
-          tags: expense.category.tags,
-          confidence: expense.category.confidence,
-          rationale: expense.category.rationale || '',
-        }
+            primary: expense.category.primary,
+            secondary: expense.category.secondary,
+            tags: expense.category.tags,
+            confidence: expense.category.confidence,
+            rationale: expense.category.rationale || '',
+          }
         : null,
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),

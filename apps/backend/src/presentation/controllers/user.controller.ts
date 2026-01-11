@@ -5,9 +5,9 @@ import { UpdateUserCurrencyUseCase } from '../../application/use-cases/user/upda
 import { IsString, Length } from 'class-validator';
 
 class UpdateCurrencyDto {
-    @IsString()
-    @Length(3, 3)
-    currency!: string;
+  @IsString()
+  @Length(3, 3)
+  currency!: string;
 }
 
 @ApiTags('Users')
@@ -15,22 +15,20 @@ class UpdateCurrencyDto {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class UserController {
-    constructor(
-        private readonly updateUserCurrencyUseCase: UpdateUserCurrencyUseCase,
-    ) { }
+  constructor(private readonly updateUserCurrencyUseCase: UpdateUserCurrencyUseCase) {}
 
-    @Patch('profile/currency')
-    @ApiOperation({ summary: 'Update user currency and recalculate expenses' })
-    @ApiResponse({ status: 200, description: 'Currency updated successfully' })
-    async updateCurrency(@Request() req: any, @Body() dto: UpdateCurrencyDto) {
-        const updatedUser = await this.updateUserCurrencyUseCase.execute({
-            userId: req.user.id,
-            newCurrency: dto.currency,
-        });
+  @Patch('profile/currency')
+  @ApiOperation({ summary: 'Update user currency and recalculate expenses' })
+  @ApiResponse({ status: 200, description: 'Currency updated successfully' })
+  async updateCurrency(@Request() req: any, @Body() dto: UpdateCurrencyDto) {
+    const updatedUser = await this.updateUserCurrencyUseCase.execute({
+      userId: req.user.id,
+      newCurrency: dto.currency,
+    });
 
-        return {
-            currency: updatedUser.currency,
-            message: 'Currency updated and expenses recalculated successfully',
-        };
-    }
+    return {
+      currency: updatedUser.currency,
+      message: 'Currency updated and expenses recalculated successfully',
+    };
+  }
 }

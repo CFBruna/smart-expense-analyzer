@@ -38,7 +38,7 @@ export class CreateExpenseUseCase {
     private readonly userRepository: IUserRepository,
     private readonly categorizationService: LangchainCategorizationService,
     private readonly exchangeRateService: ExchangeRateService,
-  ) { }
+  ) {}
 
   async execute(command: CreateExpenseCommand): Promise<Expense> {
     const user = await this.userRepository.findById(command.userId);
@@ -55,7 +55,7 @@ export class CreateExpenseUseCase {
         command.originalAmount || command.amount,
         command.originalCurrency || 'BRL',
         user.currency, // Convert to user's preferred currency
-        command.date // Use the expense date for historical rates
+        command.date, // Use the expense date for historical rates
       );
     }
 

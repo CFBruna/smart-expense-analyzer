@@ -47,4 +47,4 @@ import { UpdateUserCurrencyUseCase } from './use-cases/user/update-user-currency
     UpdateUserCurrencyUseCase,
   ],
 })
-export class ApplicationModule { }
+export class ApplicationModule {}

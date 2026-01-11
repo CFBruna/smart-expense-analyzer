@@ -10,7 +10,7 @@ export class UserMongodbRepository implements IUserRepository {
   constructor(
     @InjectModel(UserSchema.name)
     private readonly userModel: Model<UserDocument>,
-  ) { }
+  ) {}
 
   async create(user: User): Promise<User> {
     const userDoc = new this.userModel({

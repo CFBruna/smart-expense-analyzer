@@ -73,4 +73,4 @@ import { ExchangeRateService } from './services/exchange-rate.service';
     ExchangeRateService,
   ],
 })
-export class InfrastructureModule { }
+export class InfrastructureModule {}

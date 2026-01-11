@@ -83,6 +83,9 @@ export interface Translations {
             newest: string;
             oldest: string;
         };
+        successCreated: string;
+        successUpdated: string;
+        successDeleted: string;
     };
 
     // Analytics
@@ -129,6 +132,9 @@ export interface Translations {
         delete: string;
         confirm: string;
         cancel: string;
+        successCreated: string;
+        successUpdated: string;
+        successDeleted: string;
     };
 
     // Common
@@ -212,6 +218,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 newest: 'Mais Recentes',
                 oldest: 'Mais Antigos',
             },
+            successCreated: 'Despesa criada com sucesso!',
+            successUpdated: 'Despesa atualizada com sucesso!',
+            successDeleted: 'Despesa excluída com sucesso!',
         },
         analytics: {
             title: 'Análises',
@@ -252,6 +261,9 @@ export const translations: Record<LanguageCode, Translations> = {
             delete: 'Deletar',
             confirm: 'Confirmar',
             cancel: 'Cancelar',
+            successCreated: 'Categoria criada com sucesso!',
+            successUpdated: 'Categoria atualizada com sucesso!',
+            successDeleted: 'Categoria excluída com sucesso!',
         },
         common: {
             loading: 'Carregando...',
@@ -327,6 +339,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 newest: 'Newest First',
                 oldest: 'Oldest First',
             },
+            successCreated: 'Expense created successfully!',
+            successUpdated: 'Expense updated successfully!',
+            successDeleted: 'Expense deleted successfully!',
         },
         analytics: {
             title: 'Analytics',
@@ -367,6 +382,9 @@ export const translations: Record<LanguageCode, Translations> = {
             delete: 'Delete',
             confirm: 'Confirm',
             cancel: 'Cancel',
+            successCreated: 'Category created successfully!',
+            successUpdated: 'Category updated successfully!',
+            successDeleted: 'Category deleted successfully!',
         },
         common: {
             loading: 'Loading...',
@@ -442,6 +460,9 @@ export const translations: Record<LanguageCode, Translations> = {
                 newest: 'Más Recientes',
                 oldest: 'Más Antiguos',
             },
+            successCreated: '¡Gasto creado con éxito!',
+            successUpdated: '¡Gasto actualizado con éxito!',
+            successDeleted: '¡Gasto eliminado con éxito!',
         },
         analytics: {
             title: 'Análisis',
@@ -482,6 +503,9 @@ export const translations: Record<LanguageCode, Translations> = {
             delete: 'Eliminar',
             confirm: 'Confirmar',
             cancel: 'Cancelar',
+            successCreated: '¡Categoría creada con éxito!',
+            successUpdated: '¡Categoría actualizada con éxito!',
+            successDeleted: '¡Categoría eliminada con éxito!',
         },
         common: {
             loading: 'Cargando...',

@@ -38,6 +38,12 @@ export class ExpenseSchema {
   @Prop({ required: true, min: 0.01 })
   amount!: number;
 
+  @Prop({ required: true, min: 0.01 })
+  originalAmount!: number;
+
+  @Prop({ required: true, default: 'BRL' })
+  originalCurrency!: string;
+
   @Prop({ required: true, type: Date, index: true })
   date!: Date;
 
@@ -47,6 +53,5 @@ export class ExpenseSchema {
 
 export const ExpenseMongooseSchema = SchemaFactory.createForClass(ExpenseSchema);
 
-// Create compound index for user + date queries
 ExpenseMongooseSchema.index({ userId: 1, date: -1 });
 ExpenseMongooseSchema.index({ userId: 1, 'category.primary': 1 });

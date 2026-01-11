@@ -17,9 +17,11 @@ export class UserSchema {
 
   @Prop({ required: true, minlength: 2, maxlength: 100 })
   name!: string;
+
+  @Prop({ required: true, default: 'BRL', minlength: 3, maxlength: 3 })
+  currency!: string;
 }
 
 export const UserMongooseSchema = SchemaFactory.createForClass(UserSchema);
 
-// Create index for email lookup
 UserMongooseSchema.index({ email: 1 });

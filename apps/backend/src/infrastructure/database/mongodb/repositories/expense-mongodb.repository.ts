@@ -11,22 +11,24 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
   constructor(
     @InjectModel(ExpenseSchema.name)
     private readonly expenseModel: Model<ExpenseDocument>,
-  ) {}
+  ) { }
 
   async create(expense: Expense): Promise<Expense> {
     const expenseDoc = new this.expenseModel({
       userId: new Types.ObjectId(expense.userId),
       description: expense.description,
       amount: expense.amount,
+      originalAmount: expense.originalAmount,
+      originalCurrency: expense.originalCurrency,
       date: expense.date,
       category: expense.category
         ? {
-            primary: expense.category.primary,
-            secondary: expense.category.secondary,
-            tags: expense.category.tags,
-            confidence: expense.category.confidence,
-            rationale: expense.category.rationale,
-          }
+          primary: expense.category.primary,
+          secondary: expense.category.secondary,
+          tags: expense.category.tags,
+          confidence: expense.category.confidence,
+          rationale: expense.category.rationale,
+        }
         : null,
     });
 
@@ -79,6 +81,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     const updateData: any = {
       description: expense.description,
       amount: expense.amount,
+      originalAmount: expense.originalAmount,
+      originalCurrency: expense.originalCurrency,
       date: expense.date,
       updatedAt: expense.updatedAt,
     };
@@ -229,12 +233,12 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
   private toDomain(expenseDoc: ExpenseDocument): Expense {
     const category = expenseDoc.category
       ? new Category(
-          expenseDoc.category.primary,
-          expenseDoc.category.secondary,
-          expenseDoc.category.tags,
-          expenseDoc.category.confidence,
-          expenseDoc.category.rationale,
-        )
+        expenseDoc.category.primary,
+        expenseDoc.category.secondary,
+        expenseDoc.category.tags,
+        expenseDoc.category.confidence,
+        expenseDoc.category.rationale,
+      )
       : null;
 
     return new Expense(
@@ -244,6 +248,8 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       expenseDoc.amount,
       expenseDoc.date,
       category,
+      expenseDoc.originalAmount || expenseDoc.amount,
+      expenseDoc.originalCurrency || 'BRL',
       expenseDoc.createdAt || new Date(),
       expenseDoc.updatedAt || new Date(),
     );

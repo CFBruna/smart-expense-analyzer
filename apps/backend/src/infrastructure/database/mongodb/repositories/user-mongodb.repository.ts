@@ -10,13 +10,14 @@ export class UserMongodbRepository implements IUserRepository {
   constructor(
     @InjectModel(UserSchema.name)
     private readonly userModel: Model<UserDocument>,
-  ) {}
+  ) { }
 
   async create(user: User): Promise<User> {
     const userDoc = new this.userModel({
       email: user.email,
       passwordHash: user.passwordHash,
       name: user.name,
+      currency: user.currency,
     });
 
     const saved = await userDoc.save();
@@ -48,6 +49,7 @@ export class UserMongodbRepository implements IUserRepository {
       userDoc.email,
       userDoc.passwordHash,
       userDoc.name,
+      userDoc.currency || 'BRL',
       userDoc.createdAt || new Date(),
     );
   }

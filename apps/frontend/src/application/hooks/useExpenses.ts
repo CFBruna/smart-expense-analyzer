@@ -1,79 +1,98 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Expense, CreateExpenseDto } from '@domain/interfaces/expense.interface';
-import { expenseService, DateFilters } from '../services/expense.service';
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { CreateExpenseDto } from '@domain/interfaces/expense.interface';
+import { expenseService, DateFilters, UpdateExpenseData } from '../services/expense.service';
 import { useCurrency } from '../contexts/CurrencyContext';
 
 export const useExpenses = () => {
     const { currency } = useCurrency();
-    const [expenses, setExpenses] = useState<Expense[]>([]);
-    const [meta, setMeta] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(20);
     const [dateFilters, setDateFilters] = useState<DateFilters | undefined>(undefined);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-    const loadExpenses = useCallback(async (page = 1, limit = 20, filters?: DateFilters, sort?: 'asc' | 'desc') => {
-        try {
-            setLoading(true);
-            setError(null);
-            const effectiveFilters = filters === undefined ? dateFilters : filters;
-            const effectiveSort = sort || sortOrder;
+    const queryKey = ['expenses', { page, limit, dateFilters, sortOrder, currency }];
 
-            const response = await expenseService.listExpenses(page, limit, effectiveFilters, effectiveSort);
-            setExpenses(response.data);
-            setMeta(response.meta);
-        } catch (err) {
-            setError('Failed to load expenses');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, [dateFilters, sortOrder]);
+    const {
+        data: response,
+        isLoading,
+        isError,
+        error: queryError,
+    } = useQuery({
+        queryKey,
+        queryFn: () => expenseService.listExpenses(page, limit, dateFilters, sortOrder),
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 60,
+        refetchInterval: (query) => {
+            const data = query.state.data?.data;
+            if (data?.some((e) => !e.category)) {
+                return 3000;
+            }
+            return false;
+        },
+    });
 
-    const createExpense = useCallback(async (data: CreateExpenseDto) => {
-        const newExpense = await expenseService.createExpense(data);
-        await loadExpenses(meta.page, meta.limit, dateFilters, sortOrder);
-        return newExpense;
-    }, [loadExpenses, meta.page, meta.limit, dateFilters, sortOrder]);
+    const expenses = response?.data || [];
+    const meta = response?.meta || { page, limit: 20, total: 0, totalPages: 0 };
+    const error = isError ? (queryError as Error).message : null;
 
-    const updateExpense = useCallback(async (id: string, data: Partial<CreateExpenseDto> & {
-        manualCategory?: {
-            primary: string;
-            secondary?: string | null;
-        };
-    }) => {
-        await expenseService.updateExpense(id, data);
-        await loadExpenses(meta.page, meta.limit, dateFilters, sortOrder);
-    }, [loadExpenses, meta.page, meta.limit, dateFilters, sortOrder]);
+    const createMutation = useMutation({
+        mutationFn: (data: CreateExpenseDto) => expenseService.createExpense(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['expenses'] });
+        },
+    });
 
-    const deleteExpense = useCallback(async (id: string) => {
-        await expenseService.deleteExpense(id);
-        const remainingOnPage = expenses.length - 1;
-        if (remainingOnPage === 0 && meta.page > 1) {
-            await loadExpenses(meta.page - 1, meta.limit, dateFilters, sortOrder);
-        } else {
-            await loadExpenses(meta.page, meta.limit, dateFilters, sortOrder);
-        }
-    }, [loadExpenses, meta.page, meta.limit, expenses.length, dateFilters, sortOrder]);
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: UpdateExpenseData }) =>
+            expenseService.updateExpense(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['expenses'] });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => expenseService.deleteExpense(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['expenses'] });
+        },
+    });
+
+    const loadExpenses = useCallback((newPage?: number, newLimit?: number, newFilters?: DateFilters, newSort?: 'asc' | 'desc') => {
+        if (newPage !== undefined) setPage(newPage);
+        if (newLimit !== undefined) setLimit(newLimit);
+        if (newFilters !== undefined) setDateFilters(newFilters);
+        if (newSort !== undefined) setSortOrder(newSort);
+    }, []);
+
+    const createExpense = async (data: CreateExpenseDto) => {
+        return createMutation.mutateAsync(data);
+    };
+
+    const updateExpense = async (id: string, data: UpdateExpenseData) => {
+        return updateMutation.mutateAsync({ id, data });
+    };
+
+    const deleteExpense = async (id: string) => {
+        return deleteMutation.mutateAsync(id);
+    };
 
     const applyDateFilters = useCallback((filters: DateFilters | undefined) => {
         setDateFilters(filters);
-        loadExpenses(1, meta.limit, filters, sortOrder);
-    }, [loadExpenses, meta.limit, sortOrder]);
+        setPage(1);
+    }, []);
 
     const applySort = useCallback((order: 'asc' | 'desc') => {
         setSortOrder(order);
-        loadExpenses(1, meta.limit, dateFilters, order);
-    }, [loadExpenses, meta.limit, dateFilters]);
-
-    useEffect(() => {
-        loadExpenses();
-    }, [loadExpenses, currency]);
+        setPage(1);
+    }, []);
 
     return {
         expenses,
         meta,
-        loading,
+        loading: isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
         error,
         dateFilters,
         sortOrder,

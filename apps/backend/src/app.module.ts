@@ -7,6 +7,7 @@ import { ExpensesController } from './presentation/controllers/expenses.controll
 import { AnalyticsController } from './presentation/controllers/analytics.controller';
 import { CategoriesController } from './presentation/controllers/categories.controller';
 import { ExchangeRateController } from './presentation/controllers/exchange-rate.controller';
+import { UserController } from './presentation/controllers/user.controller';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
@@ -23,6 +24,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     AnalyticsController,
     CategoriesController,
     ExchangeRateController,
+    UserController,
   ],
   providers: [JwtAuthGuard],
 })

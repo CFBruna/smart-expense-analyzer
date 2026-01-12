@@ -1,21 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListExpensesUseCase } from './list-expenses.use-case';
 import { EXPENSE_REPOSITORY } from '../../../domain/repositories/expense.repository.interface';
+import { USER_REPOSITORY } from '../../../domain/repositories/user.repository.interface';
+import { ExchangeRateService } from '../../../infrastructure/services/exchange-rate.service';
 import { Expense } from '../../../domain/entities/expense.entity';
 
 describe('ListExpensesUseCase', () => {
   let useCase: ListExpensesUseCase;
   let mockExpenseRepository: any;
+  let mockUserRepository: any;
+  let mockExchangeRateService: any;
 
   beforeEach(async () => {
     mockExpenseRepository = {
       findByUserId: jest.fn(),
+      findByUserIdAndDateRange: jest.fn(),
+    };
+
+    mockUserRepository = {
+      findById: jest.fn().mockResolvedValue({ id: 'user123', currency: 'BRL' }),
+    };
+
+    mockExchangeRateService = {
+      getBatchRates: jest.fn().mockResolvedValue({ BRL: 1, USD: 5.5 }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ListExpensesUseCase,
         { provide: EXPENSE_REPOSITORY, useValue: mockExpenseRepository },
+        { provide: USER_REPOSITORY, useValue: mockUserRepository },
+        { provide: ExchangeRateService, useValue: mockExchangeRateService },
       ],
     }).compile();
 

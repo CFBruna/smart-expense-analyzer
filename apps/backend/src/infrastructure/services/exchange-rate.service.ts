@@ -77,4 +77,22 @@ export class ExchangeRateService {
       return 1;
     }
   }
+
+  async getBatchRates(
+    fromCurrencies: string[],
+    toCurrency: string,
+    date?: Date,
+  ): Promise<Record<string, number>> {
+    const rates: Record<string, number> = {};
+    const uniqueCurrencies = [...new Set(fromCurrencies)];
+
+    await Promise.all(
+      uniqueCurrencies.map(async (fromCurrency) => {
+        const rate = await this.getExchangeRate(fromCurrency, toCurrency, date);
+        rates[fromCurrency] = rate;
+      }),
+    );
+
+    return rates;
+  }
 }

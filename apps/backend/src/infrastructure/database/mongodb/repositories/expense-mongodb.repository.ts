@@ -198,6 +198,7 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
 
   async getAnalyticsSummary(
     userId: string,
+    rates: Record<string, number> = {},
     startDate?: Date,
     endDate?: Date,
   ): Promise<{
@@ -220,17 +221,39 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
       if (endDate) match.date.$lte = endDate;
     }
 
-    const [totalResult, breakdownResult] = await Promise.all([
-      this.expenseModel
-        .aggregate([{ $match: match }, { $group: { _id: null, total: { $sum: '$amount' } } }])
-        .exec(),
+    const addConvertedAmountStage =
+      Object.keys(rates).length > 0
+        ? {
+            $addFields: {
+              convertedAmount: {
+                $multiply: [
+                  '$originalAmount',
+                  {
+                    $switch: {
+                      branches: Object.keys(rates).map((curr) => ({
+                        case: { $eq: ['$originalCurrency', curr] },
+                        then: rates[curr],
+                      })),
+                      default: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          }
+        : {
+            $addFields: { convertedAmount: '$amount' },
+          };
+
+    const [breakdownResult] = await Promise.all([
       this.expenseModel
         .aggregate([
           { $match: match },
+          addConvertedAmountStage,
           {
             $group: {
               _id: '$category.primary',
-              total: { $sum: '$amount' },
+              total: { $sum: '$convertedAmount' },
               count: { $sum: 1 },
             },
           },
@@ -247,7 +270,7 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
         .exec(),
     ]);
 
-    const totalSpent = totalResult.length > 0 ? totalResult[0].total : 0;
+    const totalSpent = breakdownResult.reduce((sum, item) => sum + item.total, 0);
     const categoryBreakdown = breakdownResult.map((item) => ({
       ...item,
       percentage: totalSpent > 0 ? (item.total / totalSpent) * 100 : 0,

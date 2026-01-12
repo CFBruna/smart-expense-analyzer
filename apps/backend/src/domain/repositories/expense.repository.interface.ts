@@ -34,6 +34,7 @@ export interface IExpenseRepository {
   ): Promise<{ data: Expense[]; total: number }>;
   getAnalyticsSummary(
     userId: string,
+    rates?: Record<string, number>,
     startDate?: Date,
     endDate?: Date,
   ): Promise<{

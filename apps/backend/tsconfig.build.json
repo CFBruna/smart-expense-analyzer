@@ -1,9 +1,45 @@
 {
-    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es2021",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": false,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": false,
+        "noImplicitThis": false,
+        "alwaysStrict": true,
+        "types": [
+            "node",
+            "jest"
+        ],
+        "paths": {
+            "@smart-expense-analyzer/shared": [
+                "../../packages/shared/src/index.ts"
+            ],
+            "@smart-expense-analyzer/shared/*": [
+                "../../packages/shared/src/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
     "exclude": [
         "node_modules",
-        "test",
         "dist",
+        "test",
         "**/*spec.ts"
     ]
 }

@@ -29,7 +29,9 @@ export interface IExpenseRepository {
     startDate?: Date,
     endDate?: Date,
     sortOrder?: 'asc' | 'desc',
-  ): Promise<Expense[]>;
+    page?: number,
+    limit?: number,
+  ): Promise<{ data: Expense[]; total: number }>;
   getAnalyticsSummary(
     userId: string,
     startDate?: Date,

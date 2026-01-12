@@ -152,22 +152,48 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     userId: string,
     startDate?: Date,
     endDate?: Date,
-    sortOrder?: 'asc' | 'desc',
-  ): Promise<Expense[]> {
+    sortOrder: 'asc' | 'desc' = 'desc',
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ data: Expense[]; total: number }> {
     if (!Types.ObjectId.isValid(userId)) {
-      return [];
+      return { data: [], total: 0 };
     }
 
     const query: any = { userId: new Types.ObjectId(userId) };
+
     if (startDate || endDate) {
       query.date = {};
       if (startDate) query.date.$gte = startDate;
       if (endDate) query.date.$lte = endDate;
     }
 
-    const sortVal = sortOrder === 'asc' ? 1 : -1;
-    const expenses = await this.expenseModel.find(query).sort({ date: sortVal }).exec();
-    return expenses.map((e) => this.toDomain(e));
+    const [expenses, total] = await Promise.all([
+      this.expenseModel
+        .find(query)
+        .sort({ date: sortOrder === 'asc' ? 1 : -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      this.expenseModel.countDocuments(query),
+    ]);
+
+    return {
+      data: expenses.map((e) => this.toDomain(e)),
+      total,
+    };
+  }
+
+  async getDistinctCurrencies(userId: string): Promise<string[]> {
+    if (!Types.ObjectId.isValid(userId)) {
+      return [];
+    }
+
+    const currencies = await this.expenseModel.distinct('originalCurrency', {
+      userId: new Types.ObjectId(userId),
+    });
+
+    return currencies.filter((c) => c != null);
   }
 
   async getAnalyticsSummary(

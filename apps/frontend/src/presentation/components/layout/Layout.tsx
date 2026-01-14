@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@application/hooks/useAuth';
 import { LogOut, BarChart3, FolderKanban, Home, Menu, X } from 'lucide-react';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { CurrencySelector } from '@presentation/components/common/CurrencySelector';
 import { LanguageSelector } from '@presentation/components/common/LanguageSelector';
 import { useLanguage } from '@application/contexts/LanguageContext';
@@ -16,6 +16,23 @@ export const Layout = ({ children }: LayoutProps) => {
     const { logout } = useAuth();
     const { t } = useLanguage();
     const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        };
+
+        if (menuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuOpen]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -69,7 +86,7 @@ export const Layout = ({ children }: LayoutProps) => {
 
                     {/* Dropdown menu */}
                     {menuOpen && (
-                        <div className="absolute right-2 top-14 sm:top-16 w-64 bg-white border border-gray-200 shadow-xl rounded-xl z-50 py-2 space-y-1 animate-slide-up">
+                        <div ref={menuRef} className="absolute right-2 top-14 sm:top-16 w-64 bg-white border border-gray-200 shadow-xl rounded-xl z-50 py-2 space-y-1 animate-slide-up">
                             <div className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 transition-colors rounded-lg mx-2">
                                 <span className="text-sm font-medium text-gray-700">{t.nav.currency}</span>
                                 <CurrencySelector minimal />

@@ -3,7 +3,7 @@ import { useAnalytics } from '@application/hooks/useAnalytics';
 import { useCategories } from '@application/hooks/useCategories';
 import { Layout } from '@presentation/components/layout/Layout';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Wallet, TrendingUp, Loader2, AlertCircle, Filter } from 'lucide-react';
+import { Wallet, TrendingUp, Loader2, AlertCircle, Filter, Receipt } from 'lucide-react';
 import { useCurrency } from '@application/contexts/CurrencyContext';
 import { formatCurrency } from '@domain/types/currency.types';
 import { useLanguage } from '@application/contexts/LanguageContext';
@@ -174,7 +174,7 @@ export const AnalyticsPage = () => {
 
             {!loading && data && (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div className="card">
                             <div className="flex items-center gap-3 mb-2">
                                 <div className="p-3 bg-primary-100 rounded-lg">
@@ -198,6 +198,20 @@ export const AnalyticsPage = () => {
                                     <p className="text-sm text-gray-600">{t.analytics.categories}</p>
                                     <p className="text-2xl font-bold text-gray-900">
                                         {data.categoryBreakdown.length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-3 bg-purple-100 rounded-lg">
+                                    <Receipt className="text-purple-600" size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">{t.analytics.totalExpenses}</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {data.categoryBreakdown.reduce((sum, item) => sum + item.count, 0)}
                                     </p>
                                 </div>
                             </div>

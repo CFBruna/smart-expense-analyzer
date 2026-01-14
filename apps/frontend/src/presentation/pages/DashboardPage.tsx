@@ -107,7 +107,7 @@ export const DashboardPage = () => {
                 </div>
             )}
 
-            <DashboardFilters onApply={handleFilterApply} />
+            <DashboardFilters onApply={handleFilterApply} expenses={expenses} />
 
             <div className="mb-6 flex flex-row justify-between items-center gap-4">
                 <button

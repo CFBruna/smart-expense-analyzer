@@ -27,6 +27,7 @@
         "@nestjs/platform-express": "^10.0.0",
         "@nestjs/schedule": "^4.1.1",
         "@nestjs/swagger": "^7.4.2",
+        "@nestjs/throttler": "^6.5.0",
         "@smart-expense-analyzer/shared": "workspace:*",
         "axios": "^1.13.2",
         "bcrypt": "^6.0.0",

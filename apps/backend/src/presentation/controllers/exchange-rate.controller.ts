@@ -23,7 +23,7 @@ export class ExchangeRateController {
     if (amount) {
       return {
         rate,
-        convertedAmount: Number(amount) * rate,
+        convertedAmount: rate !== null ? Number(amount) * rate : null,
       };
     }
 

@@ -101,6 +101,7 @@ export interface Translations {
         lastYear: string;
         totalSpent: string;
         categories: string;
+        totalExpenses: string;
         spendingByCategory: string;
         categoryBreakdown: string;
         noData: string;
@@ -238,6 +239,7 @@ export const translations: Record<LanguageCode, Translations> = {
             lastYear: 'Último Ano',
             totalSpent: 'Total Gasto',
             categories: 'Categorias',
+            totalExpenses: 'Total de Despesas',
             spendingByCategory: 'Gastos por Categoria',
             categoryBreakdown: 'Detalhamento por Categoria',
             noData: 'Nenhum dado disponível para o período selecionado.',
@@ -363,6 +365,7 @@ export const translations: Record<LanguageCode, Translations> = {
             lastYear: 'Last Year',
             totalSpent: 'Total Spent',
             categories: 'Categories',
+            totalExpenses: 'Total Expenses',
             spendingByCategory: 'Spending by Category',
             categoryBreakdown: 'Category Breakdown',
             noData: 'No data available for the selected period.',
@@ -488,6 +491,7 @@ export const translations: Record<LanguageCode, Translations> = {
             lastYear: 'Último Año',
             totalSpent: 'Total Gastado',
             categories: 'Categorías',
+            totalExpenses: 'Total de Gastos',
             spendingByCategory: 'Gastos por Categoría',
             categoryBreakdown: 'Desglose por Categorías',
             noData: 'No hay datos disponibles para el período seleccionado.',

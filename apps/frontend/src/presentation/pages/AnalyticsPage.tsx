@@ -209,7 +209,7 @@ export const AnalyticsPage = () => {
                                     <Receipt className="text-purple-600" size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">{t.analytics.totalExpenses || 'Total de Despesas'}</p>
+                                    <p className="text-sm text-gray-600">{t.analytics.totalExpenses}</p>
                                     <p className="text-2xl font-bold text-gray-900">
                                         {data.categoryBreakdown.reduce((sum, item) => sum + item.count, 0)}
                                     </p>

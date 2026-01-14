@@ -48,6 +48,10 @@ Smart Expense Analyzer is a full-stack application designed to help users track,
 - **Health Metrics**: Comprehensive logging for monitoring system performance
 - **Stale-While-Revalidate**: 7-day cache TTL ensures availability even during API outages
 - **JWT Authentication**: Secure user sessions with 7-day token expiration
+- **Rate Limiting**: Protection against brute-force attacks and API abuse
+  - Global: 20 requests/minute
+  - Login: 5 attempts/minute
+  - Register: 3 attempts/minute
 - **Input Validation**: Comprehensive validation using Zod and class-validator
 
 ## 🛠️ Tech Stack

@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AnalyticsSummary } from '@domain/interfaces/analytics.interface';
 import { analyticsService, AnalyticsFilters } from '../services/analytics.service';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 export const useAnalytics = () => {
+    const { currency } = useCurrency();
     const [data, setData] = useState<AnalyticsSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export const useAnalytics = () => {
 
     useEffect(() => {
         loadAnalytics(dateFilters);
-    }, [loadAnalytics, dateFilters]);
+    }, [loadAnalytics, dateFilters, currency]);
 
     return { data, loading, error, dateFilters, applyDateFilters };
 };

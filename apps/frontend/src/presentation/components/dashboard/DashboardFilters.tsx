@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Filter } from 'lucide-react';
 import { useLanguage } from '@application/contexts/LanguageContext';
+import { Expense } from '@domain/interfaces/expense.interface';
 
 export type FilterPreset = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'allTime' | 'custom';
 
 interface DashboardFiltersProps {
     onApply: (startDate: string | undefined, endDate: string | undefined) => void;
+    expenses: Expense[];
 }
 
 const getDateRange = (preset: FilterPreset): { startDate?: string; endDate?: string } => {
@@ -34,7 +36,24 @@ const getDateRange = (preset: FilterPreset): { startDate?: string; endDate?: str
     }
 };
 
-export const DashboardFilters = ({ onApply }: DashboardFiltersProps) => {
+const getFilterCount = (expenses: Expense[], preset: FilterPreset): number => {
+    const range = getDateRange(preset);
+    if (!range.startDate && !range.endDate) {
+        return expenses.length;
+    }
+
+    return expenses.filter(expense => {
+        const expenseDate = new Date(expense.date);
+        const start = range.startDate ? new Date(range.startDate) : null;
+        const end = range.endDate ? new Date(range.endDate) : null;
+
+        if (start && expenseDate < start) return false;
+        if (end && expenseDate > end) return false;
+        return true;
+    }).length;
+};
+
+export const DashboardFilters = ({ onApply, expenses }: DashboardFiltersProps) => {
     const { t } = useLanguage();
     const [filterPreset, setFilterPreset] = useState<FilterPreset>('allTime');
     const [showCustomRange, setShowCustomRange] = useState(false);
@@ -68,18 +87,29 @@ export const DashboardFilters = ({ onApply }: DashboardFiltersProps) => {
                 <span className="font-medium text-gray-700">{t.dashboard.filters.customRange}</span>
             </div>
             <div className="filter-scroll-container mb-4">
-                {(['today', 'thisWeek', 'thisMonth', 'thisYear', 'allTime'] as const).map((preset) => (
-                    <button
-                        key={preset}
-                        onClick={() => handleFilterChange(preset)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterPreset === preset
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                    >
-                        {t.dashboard.filters[preset]}
-                    </button>
-                ))}
+                {(['today', 'thisWeek', 'thisMonth', 'thisYear', 'allTime'] as const).map((preset) => {
+                    const count = getFilterCount(expenses, preset);
+                    return (
+                        <button
+                            key={preset}
+                            onClick={() => handleFilterChange(preset)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterPreset === preset
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                        >
+                            {t.dashboard.filters[preset]}
+                            {count > 0 && (
+                                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${filterPreset === preset
+                                    ? 'bg-white bg-opacity-20 text-white'
+                                    : 'bg-primary-100 text-primary-700'
+                                    }`}>
+                                    {count}
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
                 <button
                     onClick={() => handleFilterChange('custom')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterPreset === 'custom'

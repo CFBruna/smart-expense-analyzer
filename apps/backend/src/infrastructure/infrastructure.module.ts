@@ -17,6 +17,7 @@ import { JwtAuthService } from './auth/jwt-auth.service';
 import { LangchainCategorizationService } from './ai/langchain-categorization.service';
 import { SeedService } from './database/seed.service';
 import { ExchangeRateService } from './services/exchange-rate.service';
+import { ExchangeRateScheduler } from './schedulers/exchange-rate.scheduler';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { ExchangeRateService } from './services/exchange-rate.service';
     LangchainCategorizationService,
     SeedService,
     ExchangeRateService,
+    ExchangeRateScheduler,
   ],
   exports: [
     USER_REPOSITORY,
@@ -71,6 +73,7 @@ import { ExchangeRateService } from './services/exchange-rate.service';
     JwtAuthService,
     LangchainCategorizationService,
     ExchangeRateService,
+    ExchangeRateScheduler,
   ],
 })
 export class InfrastructureModule {}

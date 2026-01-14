@@ -39,3 +39,6 @@ task.md
 
 # IA
 .antigravity/
+
+# Environment-specific npm configuration
+.npmrc

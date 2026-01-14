@@ -106,5 +106,34 @@ describe('ListExpensesUseCase', () => {
 
       expect(result.totalPages).toBe(3);
     });
+    it('should return original expense if exchange rate is missing', async () => {
+      const expense = new Expense(
+        '1',
+        'user1',
+        'Lunch',
+        50000,
+        new Date(),
+        null,
+        50000,
+        'PYG',
+        new Date(),
+        new Date(),
+      );
+
+      (mockExpenseRepository.findByUserId as jest.Mock).mockResolvedValue({
+        data: [expense],
+        total: 1,
+      });
+
+      mockExchangeRateService.getBatchRates.mockResolvedValue({});
+
+      const result = await useCase.execute({
+        userId: 'user1',
+        pagination: { page: 1, limit: 10 },
+      });
+
+      expect(result.expenses[0].amount).toBe(50000);
+      expect(result.expenses[0].originalCurrency).toBe('PYG');
+    });
   });
 });

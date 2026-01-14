@@ -66,7 +66,12 @@ export class ListExpensesUseCase {
       if (expense.originalCurrency === targetCurrency) {
         return expense;
       }
-      const rate = rates[expense.originalCurrency] || 1;
+      const rate = rates[expense.originalCurrency];
+
+      if (!rate) {
+        return expense;
+      }
+
       const convertedAmount = Number((expense.originalAmount * rate).toFixed(2));
       return new Expense(
         expense.id,

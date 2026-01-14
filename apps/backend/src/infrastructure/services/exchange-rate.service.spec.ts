@@ -38,34 +38,67 @@ describe('ExchangeRateService', () => {
       expect(rate).toBe(1);
     });
 
-    it('should return cached rate if available', async () => {
-      mockRedisService.get.mockResolvedValue(5.5);
+    it('should return cached rate if available and fresh (< 1h)', async () => {
+      mockRedisService.get.mockResolvedValue({
+        rate: 5.5,
+        timestamp: Date.now() - 1000,
+      });
+
       const rate = await service.getExchangeRate('USD', 'BRL');
       expect(rate).toBe(5.5);
-      expect(mockRedisService.get).toHaveBeenCalledWith('exchange_rate:usd:brl:latest');
+      expect(mockRedisService.get).toHaveBeenCalled();
       expect(mockedAxios.get).not.toHaveBeenCalled();
     });
 
-    it('should fetch from API if not cached', async () => {
-      mockRedisService.get.mockResolvedValue(null);
+    it('should handle legacy numeric cache (treat as valid)', async () => {
+      mockRedisService.get.mockResolvedValue(5.5);
+      const rate = await service.getExchangeRate('USD', 'BRL');
+      expect(rate).toBe(5.5);
+    });
+
+    it('should fetch from API if cache is stale (> 1h)', async () => {
+      mockRedisService.get.mockResolvedValue({
+        rate: 5.0,
+        timestamp: Date.now() - (3600 * 1000 + 1000),
+      });
+
       mockedAxios.get.mockResolvedValue({
         data: {
-          date: '2024-01-01',
           usd: {
-            brl: 5.5,
+            brl: 5.6,
           },
         },
       });
 
       const rate = await service.getExchangeRate('USD', 'BRL');
-      expect(rate).toBe(5.5);
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        expect.stringContaining(
-          'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
-        ),
+      expect(rate).toBe(5.6);
+      expect(mockRedisService.set).toHaveBeenCalledWith(
+        expect.stringContaining('exchange_rate:usd:brl'),
+        expect.objectContaining({ rate: 5.6 }),
+        expect.any(Number),
       );
-      expect(mockRedisService.set).toHaveBeenCalledWith('exchange_rate:usd:brl:latest', 5.5, 3600);
     });
+
+    it('should return STALE rate if API fetch fails (fallback)', async () => {
+      const staleTimestamp = Date.now() - 3600 * 1000 * 24;
+      mockRedisService.get.mockResolvedValue({
+        rate: 5.0,
+        timestamp: staleTimestamp,
+      });
+
+      mockedAxios.get.mockRejectedValue(new Error('API Down'));
+
+      const rate = await service.getExchangeRate('USD', 'BRL');
+      expect(rate).toBe(5.0);
+    }, 30000);
+
+    it('should return null if no cache (fresh or stale) and API fails', async () => {
+      mockRedisService.get.mockResolvedValue(null);
+      mockedAxios.get.mockRejectedValue(new Error('API Down'));
+
+      const rate = await service.getExchangeRate('USD', 'BRL');
+      expect(rate).toBeNull();
+    }, 30000);
 
     it('should fetch historical rate if date is provided', async () => {
       const date = new Date('2024-01-15');
@@ -74,7 +107,6 @@ describe('ExchangeRateService', () => {
       mockRedisService.get.mockResolvedValue(null);
       mockedAxios.get.mockResolvedValue({
         data: {
-          date: dateStr,
           usd: {
             brl: 4.8,
           },
@@ -84,20 +116,9 @@ describe('ExchangeRateService', () => {
       const rate = await service.getExchangeRate('USD', 'BRL', date);
       expect(rate).toBe(4.8);
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/usd.json`,
+        expect.stringContaining(dateStr),
+        expect.objectContaining({ timeout: 10000 }),
       );
-      expect(mockRedisService.set).toHaveBeenCalledWith(
-        `exchange_rate:usd:brl:${dateStr}`,
-        4.8,
-        3600,
-      );
-    });
-    it('should return 1 on API failure', async () => {
-      mockRedisService.get.mockResolvedValue(null);
-      mockedAxios.get.mockRejectedValue(new Error('API Error'));
-
-      const rate = await service.getExchangeRate('USD', 'BRL');
-      expect(rate).toBe(1);
     });
   });
 

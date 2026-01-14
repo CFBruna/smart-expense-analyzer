@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ApplicationModule } from './application/application.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuthController } from './presentation/controllers/auth.controller';
@@ -8,6 +9,7 @@ import { AnalyticsController } from './presentation/controllers/analytics.contro
 import { CategoriesController } from './presentation/controllers/categories.controller';
 import { ExchangeRateController } from './presentation/controllers/exchange-rate.controller';
 import { UserController } from './presentation/controllers/user.controller';
+import { DevController } from './presentation/controllers/dev.controller';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
@@ -15,6 +17,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     InfrastructureModule,
     ApplicationModule,
   ],
@@ -25,6 +28,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     CategoriesController,
     ExchangeRateController,
     UserController,
+    DevController,
   ],
   providers: [JwtAuthGuard],
 })

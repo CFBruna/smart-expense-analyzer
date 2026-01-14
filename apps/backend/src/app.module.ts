@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { ApplicationModule } from './application/application.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuthController } from './presentation/controllers/auth.controller';
@@ -18,6 +20,13 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
     InfrastructureModule,
     ApplicationModule,
   ],
@@ -30,6 +39,12 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     UserController,
     DevController,
   ],
-  providers: [JwtAuthGuard],
+  providers: [
+    JwtAuthGuard,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule { }

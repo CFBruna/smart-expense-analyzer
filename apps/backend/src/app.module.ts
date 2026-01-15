@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -13,6 +13,8 @@ import { ExchangeRateController } from './presentation/controllers/exchange-rate
 import { UserController } from './presentation/controllers/user.controller';
 import { DevController } from './presentation/controllers/dev.controller';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
+import { LoggerService } from './infrastructure/logger/logger.service';
+import { RequestLoggerMiddleware } from './presentation/middleware/request-logger.middleware';
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     DevController,
   ],
   providers: [
+    LoggerService,
     JwtAuthGuard,
     {
       provide: APP_GUARD,
@@ -47,4 +50,8 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

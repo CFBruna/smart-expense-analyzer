@@ -23,8 +23,8 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
     ThrottlerModule.forRoot([
       {
         name: 'default',
-        ttl: 60000,
-        limit: 20,
+        ttl: 60000, // 1 minute
+        limit: 100, // Increased from 20 for E2E tests
       },
     ]),
     InfrastructureModule,

@@ -43,12 +43,26 @@ jobs:
 
     - name: Lint
       run: pnpm lint
-      # Will run lint in all workspaces. Ensure root package.json has "lint": "pnpm -r run lint"
 
     - name: Test
       run: pnpm test
-      # Will run test in all workspaces.
 
     - name: Build
       run: pnpm build
-      # Will run build in all workspaces.
+
+    - name: E2E Tests
+      run: |
+        cd apps/backend && pnpm dev &
+        BACKEND_PID=$!
+        cd ../..
+        cd apps/frontend && pnpm dev &
+        FRONTEND_PID=$!
+        cd ../..
+        sleep 15
+        cd apps/frontend && pnpm test:e2e
+        kill $BACKEND_PID $FRONTEND_PID || true
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        JWT_SECRET: test-secret-key
+        MONGODB_URI: mongodb://localhost:27017/test
+        REDIS_URL: redis://localhost:6379

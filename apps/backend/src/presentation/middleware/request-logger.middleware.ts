@@ -1,11 +1,11 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { LoggerService } from '../../infrastructure/logger/logger.service';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
-  constructor(private readonly logger: LoggerService) { }
+  constructor(private readonly logger: LoggerService) {}
 
   use(req: any, res: Response, next: NextFunction) {
     const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();

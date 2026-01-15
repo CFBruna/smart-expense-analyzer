@@ -400,7 +400,7 @@ pnpm test
 ### Test Coverage
 
 Current backend test coverage:
-- **Total Tests**: 81 passing
+- **Total Tests**: 88 passing
 - **Coverage**: ~85% (application layer)
 - **Frameworks**: Jest + Supertest
 

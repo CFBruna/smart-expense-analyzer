@@ -12,7 +12,7 @@ export default defineConfig({
         env: {
             apiUrl: 'http://localhost:3000/api',
         },
-        setupNodeEvents(on, config) {
+        setupNodeEvents() {
         },
     },
 });

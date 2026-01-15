@@ -3,11 +3,13 @@ import { AuthController } from './auth.controller';
 import { RegisterUserUseCase } from '../../application/use-cases/auth/register-user.use-case';
 import { AuthenticateUserUseCase } from '../../application/use-cases/auth/authenticate-user.use-case';
 import { User } from '../../domain/entities/user.entity';
+import { LoggerService } from '../../infrastructure/logger/logger.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let mockRegisterUseCase: any;
   let mockAuthenticateUseCase: any;
+  let mockLogger: any;
 
   beforeEach(async () => {
     mockRegisterUseCase = {
@@ -18,11 +20,20 @@ describe('AuthController', () => {
       execute: jest.fn(),
     };
 
+    mockLogger = {
+      logWithCorrelationId: jest.fn(),
+      log: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      debug: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         { provide: RegisterUserUseCase, useValue: mockRegisterUseCase },
         { provide: AuthenticateUserUseCase, useValue: mockAuthenticateUseCase },
+        { provide: LoggerService, useValue: mockLogger },
       ],
     }).compile();
 
@@ -44,7 +55,8 @@ describe('AuthController', () => {
       const user = new User('123', dto.email, 'hashedPassword', dto.name);
       mockRegisterUseCase.execute.mockResolvedValue(user);
 
-      const result = await controller.register(dto);
+      const req = { correlationId: 'test-correlation-id' };
+      const result = await controller.register(dto, req);
 
       expect(mockRegisterUseCase.execute).toHaveBeenCalledWith({
         email: dto.email,
@@ -77,7 +89,8 @@ describe('AuthController', () => {
 
       mockAuthenticateUseCase.execute.mockResolvedValue(authResult);
 
-      const result = await controller.login(dto);
+      const req = { correlationId: 'test-correlation-id' };
+      const result = await controller.login(dto, req);
 
       expect(mockAuthenticateUseCase.execute).toHaveBeenCalledWith({
         email: dto.email,

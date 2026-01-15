@@ -329,6 +329,55 @@ NODE_ENV=development
 VITE_API_URL=http://localhost:3000
 ```
 
+## 📊 Structured Logging
+
+The application uses **Winston** for production-ready structured logging with request correlation.
+
+### Features
+
+- **Request Correlation IDs**: Every request gets a unique UUID for tracking
+- **Structured Output**: JSON in production, pretty-print in development
+- **Log Levels**: error, warn, info, http, debug
+- **Daily Rotation**: Automatic log file rotation (production only)
+- **Correlation Headers**: Response includes `X-Correlation-ID` header
+
+### Log Format
+
+**Development (Console)**:
+```
+2026-01-15 20:05:20 info [HTTP][697b5bd1-b3b3-433a-b0cd-b9a19be996da]: Request completed {"method":"GET","url":"/expenses","statusCode":200,"duration":5}
+```
+
+**Production (JSON)**:
+```json
+{
+  "timestamp": "2026-01-15T23:05:20.123Z",
+  "level": "info",
+  "message": "Request completed",
+  "correlationId": "697b5bd1-b3b3-433a-b0cd-b9a19be996da",
+  "context": "HTTP",
+  "method": "GET",
+  "statusCode": 200,
+  "duration": 5
+}
+```
+
+### Log Query Examples
+
+```bash
+# Find all requests for a specific correlation ID
+grep "697b5bd1-b3b3-433a-b0cd-b9a19be996da" logs/combined-2026-01-15.log
+
+# Find all errors
+grep '"level":"error"' logs/error-2026-01-15.log
+
+# Find slow requests (>1000ms)
+grep -E '"duration":[0-9]{4,}' logs/combined-2026-01-15.log
+
+# Find all login attempts
+grep "User logged in" logs/combined-2026-01-15.log
+```
+
 ## 🧪 Testing
 
 ### Running Tests
@@ -351,7 +400,7 @@ pnpm test
 ### Test Coverage
 
 Current backend test coverage:
-- **Total Tests**: 81 passing
+- **Total Tests**: 88 passing
 - **Coverage**: ~85% (application layer)
 - **Frameworks**: Jest + Supertest
 

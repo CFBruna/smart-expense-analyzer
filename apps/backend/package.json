@@ -38,7 +38,9 @@
         "langchain": "^0.1.37",
         "mongoose": "^8.21.0",
         "reflect-metadata": "^0.2.0",
-        "rxjs": "^7.8.1"
+        "rxjs": "^7.8.1",
+        "winston": "^3.19.0",
+        "winston-daily-rotate-file": "^5.0.0"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",

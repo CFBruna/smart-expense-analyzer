@@ -355,6 +355,28 @@ Current backend test coverage:
 - **Coverage**: ~85% (application layer)
 - **Frameworks**: Jest + Supertest
 
+### E2E Tests
+
+End-to-end testing with **Cypress 15.9.0**:
+
+```bash
+# Run E2E tests (headless)
+cd apps/frontend
+pnpm test:e2e
+
+# Open Cypress GUI
+cd apps/frontend
+pnpm test:e2e:open
+```
+
+**Coverage**: 20 E2E tests across 4 suites
+- **Authentication** (5 tests): login, logout, validation
+- **Analytics** (7 tests): dashboard, statistics, charts, filters
+- **Expenses** (5 tests): CRUD, navigation, filters
+- **Multi-currency** (3 tests): selector, menu display
+
+All tests are **language-agnostic** (PT/EN/ES) and pass in ~34 seconds.
+
 ## 🚢 Deployment
 
 ### Production Build

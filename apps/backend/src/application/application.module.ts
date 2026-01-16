@@ -8,6 +8,7 @@ import { ListExpensesUseCase } from './use-cases/expenses/list-expenses.use-case
 import { GetAnalyticsUseCase } from './use-cases/expenses/get-analytics.use-case';
 import { GetExpenseByIdUseCase } from './use-cases/expenses/get-expense-by-id.use-case';
 import { DeleteExpenseUseCase } from './use-cases/expenses/delete-expense.use-case';
+import { GetExpenseCountsByPeriodUseCase } from './use-cases/expenses/get-expense-counts-by-period.use-case';
 import { CreateCategoryUseCase } from './use-cases/categories/create-category.use-case';
 import { ListCategoriesUseCase } from './use-cases/categories/list-categories.use-case';
 import { UpdateCategoryUseCase } from './use-cases/categories/update-category.use-case';
@@ -25,11 +26,13 @@ import { UpdateUserCurrencyUseCase } from './use-cases/user/update-user-currency
     GetAnalyticsUseCase,
     GetExpenseByIdUseCase,
     DeleteExpenseUseCase,
+    GetExpenseCountsByPeriodUseCase,
     CreateCategoryUseCase,
     ListCategoriesUseCase,
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
     UpdateUserCurrencyUseCase,
+    GetExpenseCountsByPeriodUseCase,
   ],
   exports: [
     RegisterUserUseCase,
@@ -45,6 +48,7 @@ import { UpdateUserCurrencyUseCase } from './use-cases/user/update-user-currency
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
     UpdateUserCurrencyUseCase,
+    GetExpenseCountsByPeriodUseCase,
   ],
 })
 export class ApplicationModule {}

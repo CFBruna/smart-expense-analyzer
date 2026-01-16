@@ -32,7 +32,7 @@ export class ListExpensesUseCase {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: any,
     private readonly exchangeRateService: ExchangeRateService,
-  ) { }
+  ) {}
 
   async execute(query: ListExpensesQuery): Promise<ListExpensesResult> {
     const user = await this.userRepository.findById(query.userId);

@@ -14,6 +14,12 @@ class LocalStorageService {
     isAuthenticated(): boolean {
         return !!this.getToken();
     }
+
+    clearAll(): void {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('selected_currency');
+        localStorage.removeItem('selected_language');
+    }
 }
 
 export const localStorageService = new LocalStorageService();

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import { useLanguage } from '@application/contexts/LanguageContext';
 import { Expense } from '@domain/interfaces/expense.interface';
+import { expenseService, PeriodCounts } from '@application/services/expense.service';
 
 export type FilterPreset = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'allTime' | 'custom';
 
@@ -36,29 +37,25 @@ const getDateRange = (preset: FilterPreset): { startDate?: string; endDate?: str
     }
 };
 
-const getFilterCount = (expenses: Expense[], preset: FilterPreset): number => {
-    const range = getDateRange(preset);
-    if (!range.startDate && !range.endDate) {
-        return expenses.length;
-    }
-
-    return expenses.filter(expense => {
-        const expenseDate = new Date(expense.date);
-        const start = range.startDate ? new Date(range.startDate) : null;
-        const end = range.endDate ? new Date(range.endDate) : null;
-
-        if (start && expenseDate < start) return false;
-        if (end && expenseDate > end) return false;
-        return true;
-    }).length;
-};
-
 export const DashboardFilters = ({ onApply, expenses }: DashboardFiltersProps) => {
     const { t } = useLanguage();
     const [filterPreset, setFilterPreset] = useState<FilterPreset>('allTime');
     const [showCustomRange, setShowCustomRange] = useState(false);
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
+    const [periodCounts, setPeriodCounts] = useState<PeriodCounts | null>(null);
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                const counts = await expenseService.getPeriodCounts();
+                setPeriodCounts(counts);
+            } catch (error) {
+                console.error('Failed to load period counts:', error);
+            }
+        };
+        fetchCounts();
+    }, [expenses.length]);
 
     const handleFilterChange = (preset: FilterPreset) => {
         setFilterPreset(preset);
@@ -88,7 +85,7 @@ export const DashboardFilters = ({ onApply, expenses }: DashboardFiltersProps) =
             </div>
             <div className="filter-scroll-container mb-4">
                 {(['today', 'thisWeek', 'thisMonth', 'thisYear', 'allTime'] as const).map((preset) => {
-                    const count = getFilterCount(expenses, preset);
+                    const count = periodCounts?.[preset] ?? 0;
                     return (
                         <button
                             key={preset}

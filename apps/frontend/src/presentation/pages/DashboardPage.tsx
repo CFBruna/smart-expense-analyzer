@@ -7,9 +7,10 @@ import { Expense } from '@domain/interfaces/expense.interface';
 import { ExpenseForm, ExpenseFormData } from '@presentation/components/dashboard/ExpenseForm';
 import { ExpenseList } from '@presentation/components/dashboard/ExpenseList';
 import { DashboardFilters } from '@presentation/components/dashboard/DashboardFilters';
+import { Pagination } from '@presentation/components/dashboard/Pagination';
 
 export const DashboardPage = () => {
-    const { expenses, loading, error, createExpense, updateExpense, deleteExpense, applyDateFilters, applySort, sortOrder } = useExpenses();
+    const { expenses, meta, loading, error, createExpense, updateExpense, deleteExpense, applyDateFilters, applySort, sortOrder, setPage } = useExpenses();
     const { t } = useLanguage();
 
     const [showForm, setShowForm] = useState(false);
@@ -151,6 +152,14 @@ export const DashboardPage = () => {
                 loading={loading && !isSubmitting && !showForm && expenses.length === 0} // Only show full loader on initial load
                 onEdit={handleEditStart}
                 onDelete={deleteExpense}
+            />
+
+            <Pagination
+                currentPage={meta.page}
+                totalPages={meta.totalPages}
+                total={meta.total}
+                limit={meta.limit}
+                onPageChange={setPage}
             />
         </Layout>
     );

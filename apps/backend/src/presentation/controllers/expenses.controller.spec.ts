@@ -5,6 +5,7 @@ import { UpdateExpenseUseCase } from '../../application/use-cases/expenses/updat
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
 import { GetExpenseByIdUseCase } from '../../application/use-cases/expenses/get-expense-by-id.use-case';
 import { DeleteExpenseUseCase } from '../../application/use-cases/expenses/delete-expense.use-case';
+import { GetExpenseCountsByPeriodUseCase } from '../../application/use-cases/expenses/get-expense-counts-by-period.use-case';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Category } from '../../domain/value-objects/category.vo';
 import { JwtAuthService } from '../../infrastructure/auth/jwt-auth.service';
@@ -16,6 +17,7 @@ describe('ExpensesController', () => {
   let mockListUseCase: any;
   let mockGetByIdUseCase: any;
   let mockDeleteUseCase: any;
+  let mockGetCountsUseCase: any;
 
   beforeEach(async () => {
     mockCreateUseCase = {
@@ -38,6 +40,10 @@ describe('ExpensesController', () => {
       execute: jest.fn(),
     };
 
+    mockGetCountsUseCase = {
+      execute: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ExpensesController],
       providers: [
@@ -46,6 +52,7 @@ describe('ExpensesController', () => {
         { provide: ListExpensesUseCase, useValue: mockListUseCase },
         { provide: GetExpenseByIdUseCase, useValue: mockGetByIdUseCase },
         { provide: DeleteExpenseUseCase, useValue: mockDeleteUseCase },
+        { provide: GetExpenseCountsByPeriodUseCase, useValue: mockGetCountsUseCase },
         { provide: JwtAuthService, useValue: { verifyToken: jest.fn() } },
       ],
     }).compile();

@@ -34,6 +34,10 @@ logs/
 # Docker
 docker-compose.override.yml
 
+# Deployment (user-specific configs)
+nginx/nginx.conf
+docker-compose.prod.yml
+
 # Planning Artifacts
 implementation_plan.md
 task.md

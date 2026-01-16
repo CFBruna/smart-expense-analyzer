@@ -25,7 +25,6 @@ export const LANGUAGES: Record<LanguageCode, Language> = {
 };
 
 export interface Translations {
-    // Auth
     auth: {
         login: string;
         loginButton: string;
@@ -39,7 +38,6 @@ export interface Translations {
         demoLoaded: string;
     };
 
-    // Navigation
     nav: {
         appName: string;
         tagline: string;
@@ -51,7 +49,6 @@ export interface Translations {
         language: string;
     };
 
-    // Dashboard
     dashboard: {
         title: string;
         addExpense: string;
@@ -92,7 +89,6 @@ export interface Translations {
         exchangeRate: string;
     };
 
-    // Analytics
     analytics: {
         title: string;
         allPeriods: string;
@@ -107,7 +103,6 @@ export interface Translations {
         noData: string;
     };
 
-    // Categories
     categories: {
         Other: string;
         Transportation: string;
@@ -118,8 +113,6 @@ export interface Translations {
         Bills: string;
         Education: string;
     };
-
-    // Categories Page
     categoriesPage: {
         title: string;
         subtitle: string;
@@ -141,14 +134,11 @@ export interface Translations {
         successUpdated: string;
         successDeleted: string;
     };
-
-    // Common
     common: {
         loading: string;
         error: string;
     };
 
-    // Actions
     actions: {
         edit: string;
         delete: string;
@@ -158,13 +148,19 @@ export interface Translations {
         add: string;
     };
 
-    // Modals
     modals: {
         deleteTitle: string;
         deleteMessage: string;
         editTitle: string;
         updating: string;
         deleting: string;
+    };
+
+    pagination: {
+        showing: string;
+        to: string;
+        of: string;
+        results: string;
     };
 }
 
@@ -294,6 +290,12 @@ export const translations: Record<LanguageCode, Translations> = {
             updating: 'Atualizando...',
             deleting: 'Excluindo...',
         },
+        pagination: {
+            showing: 'Mostrando',
+            to: 'até',
+            of: 'de',
+            results: 'resultados',
+        },
     },
     en: {
         auth: {
@@ -420,6 +422,12 @@ export const translations: Record<LanguageCode, Translations> = {
             updating: 'Updating...',
             deleting: 'Deleting...',
         },
+        pagination: {
+            showing: 'Showing',
+            to: 'to',
+            of: 'of',
+            results: 'results',
+        },
     },
     es: {
         auth: {
@@ -545,6 +553,12 @@ export const translations: Record<LanguageCode, Translations> = {
             editTitle: 'Editar Gasto',
             updating: 'Actualizando...',
             deleting: 'Eliminando...',
+        },
+        pagination: {
+            showing: 'Mostrando',
+            to: 'hasta',
+            of: 'de',
+            results: 'resultados',
         },
     },
 };

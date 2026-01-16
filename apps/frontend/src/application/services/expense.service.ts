@@ -44,6 +44,18 @@ export class ExpenseService {
     async deleteExpense(id: string): Promise<void> {
         await apiClient.delete(`/expenses/${id}`);
     }
+
+    async getPeriodCounts(): Promise<PeriodCounts> {
+        return apiClient.get<PeriodCounts>('/expenses/counts/periods');
+    }
+}
+
+export interface PeriodCounts {
+    today: number;
+    thisWeek: number;
+    thisMonth: number;
+    thisYear: number;
+    allTime: number;
 }
 
 export const expenseService = new ExpenseService();

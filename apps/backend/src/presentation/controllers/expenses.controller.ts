@@ -20,6 +20,7 @@ import { UpdateExpenseUseCase } from '../../application/use-cases/expenses/updat
 import { ListExpensesUseCase } from '../../application/use-cases/expenses/list-expenses.use-case';
 import { GetExpenseByIdUseCase } from '../../application/use-cases/expenses/get-expense-by-id.use-case';
 import { DeleteExpenseUseCase } from '../../application/use-cases/expenses/delete-expense.use-case';
+import { GetExpenseCountsByPeriodUseCase } from '../../application/use-cases/expenses/get-expense-counts-by-period.use-case';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Expense } from '../../domain/entities/expense.entity';
 
@@ -34,6 +35,7 @@ export class ExpensesController {
     private readonly listExpensesUseCase: ListExpensesUseCase,
     private readonly getExpenseByIdUseCase: GetExpenseByIdUseCase,
     private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
+    private readonly getExpenseCountsByPeriodUseCase: GetExpenseCountsByPeriodUseCase,
   ) {}
 
   @Post()
@@ -83,6 +85,13 @@ export class ExpensesController {
         totalPages: result.totalPages,
       },
     };
+  }
+
+  @Get('counts/periods')
+  @ApiOperation({ summary: 'Get expense counts by period' })
+  @ApiResponse({ status: 200, description: 'Returns counts for different periods' })
+  async getCountsByPeriod(@Request() req: any) {
+    return this.getExpenseCountsByPeriodUseCase.execute(req.user.id);
   }
 
   @Get(':id')

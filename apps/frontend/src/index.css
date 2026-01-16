@@ -55,3 +55,16 @@
     @apply mb-2;
   }
 }
+@layer components {
+  .pagination-btn {
+    @apply p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+  }
+
+  .pagination-number {
+    @apply px-3 py-1 min-w-[38px] text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors;
+  }
+
+  .pagination-number.active {
+    @apply bg-primary-600 text-white border-primary-600 hover:bg-primary-700;
+  }
+}

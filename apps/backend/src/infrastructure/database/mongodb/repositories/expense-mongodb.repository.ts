@@ -184,6 +184,22 @@ export class ExpenseMongodbRepository implements IExpenseRepository {
     };
   }
 
+  async count(userId: string, filters: any): Promise<number> {
+    if (!Types.ObjectId.isValid(userId)) {
+      return 0;
+    }
+
+    const query: any = { userId: new Types.ObjectId(userId) };
+
+    if (filters.startDate || filters.endDate) {
+      query.date = {};
+      if (filters.startDate) query.date.$gte = filters.startDate;
+      if (filters.endDate) query.date.$lte = filters.endDate;
+    }
+
+    return this.expenseModel.countDocuments(query).exec();
+  }
+
   async getDistinctCurrencies(userId: string): Promise<string[]> {
     if (!Types.ObjectId.isValid(userId)) {
       return [];

@@ -102,5 +102,6 @@ export const useExpenses = () => {
         deleteExpense,
         applyDateFilters,
         applySort,
+        setPage,
     };
 };

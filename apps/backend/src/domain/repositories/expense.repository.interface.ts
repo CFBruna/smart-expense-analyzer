@@ -32,6 +32,7 @@ export interface IExpenseRepository {
     page?: number,
     limit?: number,
   ): Promise<{ data: Expense[]; total: number }>;
+  count(userId: string, filters: ExpenseFilters): Promise<number>;
   getAnalyticsSummary(
     userId: string,
     rates?: Record<string, number>,

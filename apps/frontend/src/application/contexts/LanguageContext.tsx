@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { LanguageCode, translations, Translations } from '@domain/types/language.types';
+import { userService } from '../services/user.service';
 
 interface LanguageContextType {
     language: LanguageCode;
@@ -15,14 +16,16 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         return (saved as LanguageCode) || 'pt';
     });
 
-    const setLanguage = (newLanguage: LanguageCode) => {
-        setLanguageState(newLanguage);
-        localStorage.setItem('selected_language', newLanguage);
-    };
+    const setLanguage = async (newLanguage: LanguageCode) => {
+        try {
+            await userService.updateProfile({ language: newLanguage });
 
-    useEffect(() => {
-        localStorage.setItem('selected_language', language);
-    }, [language]);
+            setLanguageState(newLanguage);
+            localStorage.setItem('selected_language', newLanguage);
+        } catch (error) {
+            console.error('Failed to update language:', error);
+        }
+    };
 
     const t = translations[language];
 

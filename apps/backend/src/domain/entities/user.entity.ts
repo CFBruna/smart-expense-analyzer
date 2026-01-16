@@ -5,6 +5,7 @@ export class User {
     public readonly passwordHash: string,
     public readonly name: string,
     public readonly currency: string = 'BRL',
+    public readonly language: string = 'pt',
     public readonly createdAt: Date = new Date(),
   ) {
     this.validateEmail(email);

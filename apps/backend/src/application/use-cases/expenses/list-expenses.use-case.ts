@@ -32,7 +32,7 @@ export class ListExpensesUseCase {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: any,
     private readonly exchangeRateService: ExchangeRateService,
-  ) {}
+  ) { }
 
   async execute(query: ListExpensesQuery): Promise<ListExpensesResult> {
     const user = await this.userRepository.findById(query.userId);
@@ -64,6 +64,20 @@ export class ListExpensesUseCase {
 
     const convertedExpenses = result.data.map((expense) => {
       if (expense.originalCurrency === targetCurrency) {
+        if (expense.amount !== expense.originalAmount) {
+          return new Expense(
+            expense.id,
+            expense.userId,
+            expense.description,
+            expense.originalAmount,
+            expense.date,
+            expense.category,
+            expense.originalAmount,
+            expense.originalCurrency,
+            expense.createdAt,
+            expense.updatedAt,
+          );
+        }
         return expense;
       }
       const rate = rates[expense.originalCurrency];

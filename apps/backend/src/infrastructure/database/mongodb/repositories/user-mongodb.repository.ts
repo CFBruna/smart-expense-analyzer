@@ -18,6 +18,7 @@ export class UserMongodbRepository implements IUserRepository {
       passwordHash: user.passwordHash,
       name: user.name,
       currency: user.currency,
+      language: user.language,
     });
 
     const saved = await userDoc.save();
@@ -62,6 +63,7 @@ export class UserMongodbRepository implements IUserRepository {
       userDoc.passwordHash,
       userDoc.name,
       userDoc.currency || 'BRL',
+      userDoc.language || 'pt',
       userDoc.createdAt || new Date(),
     );
   }

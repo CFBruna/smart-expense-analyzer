@@ -22,7 +22,7 @@ export class UserController {
     private readonly updateUserCurrencyUseCase: UpdateUserCurrencyUseCase,
     private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
     private readonly getUserProfileUseCase: GetUserProfileUseCase,
-  ) { }
+  ) {}
 
   @Get('profile')
   @ApiOperation({ summary: 'Get user profile' })

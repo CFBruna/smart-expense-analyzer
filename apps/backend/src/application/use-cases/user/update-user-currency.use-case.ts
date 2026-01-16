@@ -32,18 +32,37 @@ export class UpdateUserCurrencyUseCase {
       throw new NotFoundException('User not found');
     }
 
-    if (user.currency === request.newCurrency) {
-      return user;
-    }
-
     const updatedUser = await this.userRepository.update(request.userId, {
       currency: request.newCurrency,
     });
 
     const result = await this.expenseRepository.findByUserId(request.userId, 1, 10000);
     const expenses = result.data;
+    console.log(`[UpdateCurrency] Found ${expenses.length} expenses for user ${request.userId}`);
 
     for (const expense of expenses) {
+      console.log(
+        `Processing expense ${expense.id}: origCurr=${expense.originalCurrency}, newCurr=${request.newCurrency}`,
+      );
+
+      if (expense.originalCurrency === request.newCurrency) {
+        console.log(`Restoring original amount for expense ${expense.id}`);
+        const updatedExpense = new Expense(
+          expense.id,
+          expense.userId,
+          expense.description,
+          expense.originalAmount,
+          expense.date,
+          expense.category,
+          expense.originalAmount,
+          expense.originalCurrency,
+          expense.createdAt,
+          new Date(),
+        );
+        await this.expenseRepository.update(updatedExpense);
+        continue;
+      }
+
       const newAmount = await this.exchangeRateService.convertAmount(
         expense.originalAmount,
         expense.originalCurrency,

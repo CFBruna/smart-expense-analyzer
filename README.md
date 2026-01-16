@@ -33,6 +33,12 @@ Smart Expense Analyzer is a full-stack application designed to help users track,
 - 🏗️ **Clean Architecture** following Domain-Driven Design principles
 - 🔒 **Secure Authentication** with JWT and bcrypt
 
+## 🌐 Live Demo
+
+**Production deployment:** [https://expenses.brunadev.com](https://expenses.brunadev.com)
+
+> The application is deployed on Azure VM with Docker, Nginx reverse proxy, and SSL/TLS encryption. See [DEPLOY.md](DEPLOY.md) for deployment instructions.
+
 ## ✨ Features
 
 ### Core Functionality
@@ -454,14 +460,25 @@ docker compose -f docker-compose.prod.yml down
 
 ### Azure Deployment
 
-The application is configured for deployment on Azure VM with:
+**Live Application:** [https://expenses.brunadev.com](https://expenses.brunadev.com)
+
+The application is production-ready and deployed on Azure VM with:
+- Docker containers for all services
 - Nginx as reverse proxy
-- Docker containers for backend services
-- Static file serving for frontend
-- SSL/TLS termination
+- SSL/TLS encryption via Let's Encrypt
+- Automated deployment scripts
 - Health checks and monitoring
 
-Refer to `docker-compose.prod.yml` for production configuration.
+For detailed deployment instructions, see [DEPLOY.md](DEPLOY.md).
+
+**Quick Deploy:**
+```bash
+# On Azure VM
+git clone https://github.com/CFBruna/smart-expense-analyzer.git
+cd smart-expense-analyzer
+./scripts/deploy/setup-env.sh
+./scripts/deploy/deploy.sh
+```
 
 ## 🎨 Key Implementation Highlights
 

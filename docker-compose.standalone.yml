@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: expense_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - expense_network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: expense_backend
+    env_file:
+      - apps/backend/.env
+    expose:
+      - "3000"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - expense_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: expense_frontend
+    expose:
+      - "80"
+    networks:
+      - expense_network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    container_name: expense_mongo
+    volumes:
+      - mongodb_data:/data/db
+    expose:
+      - "27017"
+    networks:
+      - expense_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: expense_redis
+    expose:
+      - "6379"
+    networks:
+      - expense_network
+    restart: unless-stopped
+
+networks:
+  expense_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

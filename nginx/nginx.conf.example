@@ -1,0 +1,56 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream backend {
+        server expense_backend:3000;
+    }
+
+    upstream frontend {
+        server expense_frontend:80;
+    }
+
+    # HTTP - Redirect to HTTPS
+    server {
+        listen 80;
+        server_name _;
+        
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+        }
+        
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    # HTTPS
+    server {
+        listen 443 ssl http2;
+        server_name _;
+        
+        # IMPORTANT: Replace 'expenses.yourdomain.com' with your actual domain
+        ssl_certificate     /etc/letsencrypt/live/expenses.yourdomain.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/expenses.yourdomain.com/privkey.pem;
+        
+        # API routes
+        location /api/ {
+            rewrite ^/api/(.*) /$1 break;
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+
+        # Frontend routes
+        location / {
+            proxy_pass http://frontend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+    }
+}

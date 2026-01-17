@@ -5,7 +5,7 @@ import { expenseService, DateFilters, UpdateExpenseData } from '../services/expe
 import { useCurrency } from '../contexts/CurrencyContext';
 
 export const useExpenses = () => {
-    const { currency } = useCurrency();
+    const { currency, isLoadingInitial } = useCurrency();
     const queryClient = useQueryClient();
 
     const [page, setPage] = useState(1);
@@ -24,6 +24,7 @@ export const useExpenses = () => {
         queryKey,
         queryFn: () => expenseService.listExpenses(page, limit, dateFilters, sortOrder),
         placeholderData: keepPreviousData,
+        enabled: !isLoadingInitial,
         staleTime: 1000 * 60,
         refetchInterval: (query) => {
             const data = query.state.data?.data;
@@ -92,7 +93,7 @@ export const useExpenses = () => {
     return {
         expenses,
         meta,
-        loading: isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
+        loading: isLoading || isLoadingInitial || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending,
         error,
         dateFilters,
         sortOrder,

@@ -20,6 +20,9 @@ export class UserSchema {
 
   @Prop({ required: true, default: 'BRL', minlength: 3, maxlength: 3 })
   currency!: string;
+
+  @Prop({ required: true, default: 'pt', minlength: 2, maxlength: 2 })
+  language!: string;
 }
 
 export const UserMongooseSchema = SchemaFactory.createForClass(UserSchema);

@@ -64,6 +64,20 @@ export class ListExpensesUseCase {
 
     const convertedExpenses = result.data.map((expense) => {
       if (expense.originalCurrency === targetCurrency) {
+        if (expense.amount !== expense.originalAmount) {
+          return new Expense(
+            expense.id,
+            expense.userId,
+            expense.description,
+            expense.originalAmount,
+            expense.date,
+            expense.category,
+            expense.originalAmount,
+            expense.originalCurrency,
+            expense.createdAt,
+            expense.updatedAt,
+          );
+        }
         return expense;
       }
       const rate = rates[expense.originalCurrency];

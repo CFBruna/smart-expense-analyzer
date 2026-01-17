@@ -17,7 +17,13 @@ fi
 
 # Check required tools
 command -v docker >/dev/null 2>&1 || { echo -e "${RED}Error: docker is not installed${NC}" >&2; exit 1; }
-command -v docker-compose >/dev/null 2>&1 || { echo -e "${RED}Error: docker-compose is not installed${NC}" >&2; exit 1; }
+
+# Check if docker compose works (plugin or standalone)
+if ! docker compose version >/dev/null 2>&1; then
+    echo -e "${RED}Error: docker compose is not available${NC}" >&2
+    echo "Please install Docker Compose plugin or docker-compose"
+    exit 1
+fi
 
 # Check if .env files exist
 if [[ ! -f "apps/backend/.env" ]]; then
@@ -54,25 +60,41 @@ docker compose -f docker-compose.prod.yml up -d || {
 }
 
 echo -e "\n${YELLOW}Step 4/5: Waiting for services to be ready...${NC}"
-sleep 5
-
-echo -e "\n${YELLOW}Step 5/5: Checking service status...${NC}"
+echo -e "${YELLOW}Step 5/5: Checking service status...${NC}"
 docker compose -f docker-compose.prod.yml ps
 
-# Test backend health
+# Test backend health with retry (check if container is responsive)
 echo -e "\n${YELLOW}Testing backend...${NC}"
-if docker exec expense_backend wget -q -O- http://localhost:3000/ >/dev/null 2>&1; then
-    echo -e "${GREEN}✓ Backend is responding${NC}"
-else
-    echo -e "${RED}✗ Backend health check failed${NC}"
+BACKEND_READY=false
+for i in {1..30}; do
+    if docker exec expense_backend wget -q --spider http://localhost:3000/categories 2>/dev/null || docker exec expense_backend wget -q --spider http://localhost:3000/auth/login 2>/dev/null; then
+        echo -e "${GREEN}✓ Backend is responding${NC}"
+        BACKEND_READY=true
+        break
+    fi
+    sleep 1
+done
+
+if [ "$BACKEND_READY" = false ]; then
+    echo -e "${RED}✗ Backend health check failed after 30s${NC}"
+    echo -e "${YELLOW}Note: Check logs with: docker compose -f docker-compose.prod.yml logs backend${NC}"
 fi
 
-# Test frontend health
+# Test frontend health with retry
 echo -e "${YELLOW}Testing frontend...${NC}"
-if docker exec expense_frontend wget -q -O- http://localhost:80/ >/dev/null 2>&1; then
-    echo -e "${GREEN}✓ Frontend is responding${NC}"
-else
-    echo -e "${RED}✗ Frontend health check failed${NC}"
+FRONTEND_READY=false
+for i in {1..30}; do
+    if docker exec expense_frontend wget -q --spider http://localhost:80/ 2>/dev/null; then
+        echo -e "${GREEN}✓ Frontend is responding${NC}"
+        FRONTEND_READY=true
+        break
+    fi
+    sleep 1
+done
+
+if [ "$FRONTEND_READY" = false ]; then
+    echo -e "${RED}✗ Frontend health check failed after 30s${NC}"
+    echo -e "${YELLOW}Note: Check logs with: docker compose -f docker-compose.prod.yml logs frontend${NC}"
 fi
 
 echo -e "\n${GREEN}=== Deployment Complete! ===${NC}"
